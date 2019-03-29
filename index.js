@@ -26,7 +26,7 @@ function cut(str, a, b) {
 
 async function main() {
   const chrome = await chromeLauncher.launch({
-    startingUrl: 'https://github.com',
+    startingUrl: 'https://baidu.com',
     chromeFlags: [
       '--auto-open-devtools-for-tabs'
     ]
@@ -45,10 +45,12 @@ async function main() {
     }]
   })
 
-  Network.requestIntercepted(async ({ interceptionId, request, responseHeaders}) => {
+  Network.requestIntercepted(async (params) => {
+    const { interceptionId, request, responseHeaders, responseStatusCode }=params
     let fn=__dirname+'/data/'+request.url.replace(/^https*\:\/\/(.+?)\/.*?([^\/]*?)(?:\?.*|$)/g, (_, a, b)=>{
       return a+'/'+(md5(request.url).substr(0, 8)+'/'+cut(b, 15, 15)).replace(/[^a-z\d\.]/ig, '_')
     })
+    if(responseStatusCode !== 200) return Network.continueInterceptedRequest(params)
     const response = await Network.getResponseBodyForInterception({ interceptionId })
     const bodyData = response.base64Encoded ? Base64.decode(response.body) : response.body
 
