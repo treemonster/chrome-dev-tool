@@ -1,8 +1,8 @@
 const chromeLauncher = require('chrome-launcher')
 const CDP = require('chrome-remote-interface')
-const {Base64}=require('js-base64')
 const fs=require('fs')
 const path=require('path')
+const iconv=require('iconv-lite')
 
 const {
   SPEC_STR,
@@ -23,7 +23,7 @@ function writeFileSync(fn, str) {
 }
 function readFileSync(fn) {
   try{
-    return fs.readFileSync(fn, 'utf-8')
+    return fs.readFileSync(fn)
   }catch(e){}
 }
 function md5(str) {
@@ -44,7 +44,6 @@ async function main() {
   await Promise.all([Runtime.enable(), Network.enable(), Console.enable()])
   await Network.setRequestInterception({
     patterns: [{
-      urlPattern: "*.js*",
       resourceType: 'Script',
       interceptionStage: 'HeadersReceived',
     }, {
@@ -72,9 +71,13 @@ async function main() {
     })
     if(responseStatusCode !== 200) return Network.continueInterceptedRequest(params)
     const response = await Network.getResponseBodyForInterception({ interceptionId })
-    const bodyData = response.base64Encoded ? Base64.decode(response.body) : response.body
+    const bodyData = response.base64Encoded ? new Buffer(response.body, 'base64') : new Buffer(response.body)
 
     let newBody=readFileSync(fn) || bodyData
+    if((responseHeaders['Content-Type']+'').match(/charset.*?gb/i)) {
+      responseHeaders['Content-Type']='text/html;charset=utf-8'
+      newBody=iconv.decode(new Buffer(response.body, 'base64'), 'gbk')
+    }
     if(newBody===bodyData) writeFileSync(fn, newBody)
     let header=`HTTP/1.1 200 OK\r\n`
     responseHeaders['content-length']=newBody.length
@@ -82,7 +85,7 @@ async function main() {
     let resp=header+`\r\n`+newBody+`\r\n\r\n`
     Network.continueInterceptedRequest({
       interceptionId,
-      rawResponse: response.base64Encoded ? Base64.encode(resp): resp,
+      rawResponse: response.base64Encoded ? new Buffer(resp).toString('base64'): resp,
     })
   })
 
