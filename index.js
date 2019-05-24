@@ -99,9 +99,8 @@ async function main() {
     }
     newBody=_url2response(request.url, newBody) || url2response(request.url, newBody)
     if(_should_no_cache(request.url) || should_no_cache(request.url)) {
-      newBody=''
-    }
-    if(newBody===bodyData) writeFileSync(fn, newBody)
+      newBody=bodyData
+    }else if(newBody===bodyData) writeFileSync(fn, newBody)
     let header=`HTTP/1.1 200 OK\r\n`
     responseHeaders['content-length']=newBody.length
     for(let a in responseHeaders) header+=a.replace(/(^|-)([a-z])/g, (_, a, b)=>a+b.toUpperCase())+': '+responseHeaders[a]+'\r\n'
