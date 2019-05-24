@@ -70,6 +70,7 @@ const CHROME_TOOL_INITJS='('+((SPEC_STR, FrontAPI)=>{
     bottom: 0px;
     border-top: 2px solid #ccc;
     text-align: center;
+    display: none;
   `
   d.innerHTML=`
     <button onclick='window[${JSON.stringify(SPEC_STR)}].api.captureScreenshot()'>屏幕截图</button>

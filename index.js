@@ -10,12 +10,11 @@ let url2filename=(url)=>{
   })
 }, url2response=(url, response)=>{
   return response
-}, _url2filename=url2filename, _url2response=url2response
-try{
-  let hooks=require('./hooks')
-  _url2filename=hooks.url2filename||url2filename
-  _url2response=hooks.url2response||url2response
-}catch(e) {}
+}, should_no_cache=(url)=>false
+
+let _url2filename=url2filename,
+  _url2response=url2response,
+  _should_no_cache=should_no_cache
 
 const {
   SPEC_STR,
@@ -78,6 +77,15 @@ async function main() {
   Console.messageAdded(a=>_chrome2node(a))
 
   Network.requestIntercepted(async (params) => {
+  
+    try{
+      delete require.cache[path.resolve('./hooks.js')]
+      let hooks=require('./hooks')
+      _url2filename=hooks.url2filename||url2filename
+      _url2response=hooks.url2response||url2response
+      _should_no_cache=hooks.should_no_cache||should_no_cache
+    }catch(e) {}
+
     const { interceptionId, request, responseHeaders, responseStatusCode }=params
     let fn=_url2filename(request.url)||url2filename(request.url)
     if(responseStatusCode !== 200) return Network.continueInterceptedRequest(params)
@@ -90,6 +98,9 @@ async function main() {
       newBody=iconv.decode(new Buffer(response.body, 'base64'), 'gbk')
     }
     newBody=_url2response(request.url, newBody) || url2response(request.url, newBody)
+    if(_should_no_cache(request.url) || should_no_cache(request.url)) {
+      newBody=''
+    }
     if(newBody===bodyData) writeFileSync(fn, newBody)
     let header=`HTTP/1.1 200 OK\r\n`
     responseHeaders['content-length']=newBody.length
