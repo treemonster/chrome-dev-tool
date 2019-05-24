@@ -79,7 +79,7 @@ async function main() {
   Console.messageAdded(a=>_chrome2node(a))
 
   Network.requestIntercepted(async (params) => {
-  
+
     try{
       let t=fs.fstatSync(fs.openSync('./hooks.js','r')).mtime
       if(mtime - t) {
