@@ -45,6 +45,8 @@ function cut(str, a, b) {
   return str.replace(new RegExp('(^.{'+a+'}).*?(.{'+b+'}$)', 'g'), '$1...$2')
 }
 
+let mtime=0
+
 async function main() {
   const chrome = await chromeLauncher.launch({
     chromeFlags: [
@@ -79,11 +81,15 @@ async function main() {
   Network.requestIntercepted(async (params) => {
   
     try{
-      delete require.cache[path.resolve('./hooks.js')]
-      let hooks=require('./hooks')
-      _url2filename=hooks.url2filename||url2filename
-      _url2response=hooks.url2response||url2response
-      _should_no_cache=hooks.should_no_cache||should_no_cache
+      let t=fs.fstatSync(fs.openSync('./index.js','r')).mtime
+      if(mtime !== t) {
+        mtime=t
+        delete require.cache[path.resolve('./hooks.js')]
+        let hooks=require('./hooks')
+        _url2filename=hooks.url2filename||url2filename
+        _url2response=hooks.url2response||url2response
+        _should_no_cache=hooks.should_no_cache||should_no_cache
+      }
     }catch(e) {}
 
     const { interceptionId, request, responseHeaders, responseStatusCode }=params
