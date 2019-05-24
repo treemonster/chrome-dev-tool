@@ -4,6 +4,9 @@ const fs=require('fs')
 const path=require('path')
 const iconv=require('iconv-lite')
 
+// 部分可配置方法写在customer_apis
+const {url2filename}=require('./customer_apis')
+
 const {
   SPEC_STR,
   node2chrome,
@@ -66,9 +69,7 @@ async function main() {
 
   Network.requestIntercepted(async (params) => {
     const { interceptionId, request, responseHeaders, responseStatusCode }=params
-    let fn=__dirname+'/data/'+request.url.replace(/^https*\:\/\/(.+?)\/.*?([^\/]*?)(?:\?.*|$)/g, (_, a, b)=>{
-      return a+'/'+(md5(request.url).substr(0, 8)+'/'+cut(b, 15, 15)).replace(/[^a-z\d\.]/ig, '_')
-    })
+    let fn=url2filename(request.url)
     if(responseStatusCode !== 200) return Network.continueInterceptedRequest(params)
     const response = await Network.getResponseBodyForInterception({ interceptionId })
     const bodyData = response.base64Encoded ? new Buffer(response.body, 'base64') : new Buffer(response.body)
