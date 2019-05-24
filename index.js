@@ -13,8 +13,8 @@ let url2filename=(url)=>{
 }, _url2filename=url2filename, _url2response=url2response
 try{
   let hooks=require('./hooks')
-  _url2filename=hooks.url2filename
-  _url2response=hooks.url2response
+  _url2filename=hooks.url2filename||url2filename
+  _url2response=hooks.url2response||url2response
 }catch(e) {}
 
 const {
