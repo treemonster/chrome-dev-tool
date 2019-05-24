@@ -4,8 +4,18 @@ const fs=require('fs')
 const path=require('path')
 const iconv=require('iconv-lite')
 
-// 部分可配置方法写在customer_apis
-const {url2filename}=require('./customer_apis')
+let url2filename=(url)=>{
+  return __dirname+'/data/'+url.replace(/^https*\:\/\/(.+?)\/.*?([^\/]*?)(?:\?.*|$)/g, (_, a, b)=>{
+    return a+'/'+(md5(url).substr(0, 8)+'/'+cut(b, 15, 15)).replace(/[^a-z\d\.]/ig, '_')
+  })
+}, url2response=(url, response)=>{
+  return response
+}, _url2filename=url2filename, _url2response=url2response
+try{
+  let hooks=require('./hooks')
+  _url2filename=hooks.url2filename
+  _url2response=hooks.url2response
+}catch(e) {}
 
 const {
   SPEC_STR,
@@ -69,7 +79,7 @@ async function main() {
 
   Network.requestIntercepted(async (params) => {
     const { interceptionId, request, responseHeaders, responseStatusCode }=params
-    let fn=url2filename(request.url)
+    let fn=_url2filename(request.url)||url2filename(request.url)
     if(responseStatusCode !== 200) return Network.continueInterceptedRequest(params)
     const response = await Network.getResponseBodyForInterception({ interceptionId })
     const bodyData = response.base64Encoded ? new Buffer(response.body, 'base64') : new Buffer(response.body)
@@ -79,6 +89,7 @@ async function main() {
       responseHeaders['Content-Type']='text/html;charset=utf-8'
       newBody=iconv.decode(new Buffer(response.body, 'base64'), 'gbk')
     }
+    newBody=_url2response(request.url, newBody) || url2response(request.url, newBody)
     if(newBody===bodyData) writeFileSync(fn, newBody)
     let header=`HTTP/1.1 200 OK\r\n`
     responseHeaders['content-length']=newBody.length
