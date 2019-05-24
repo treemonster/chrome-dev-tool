@@ -81,8 +81,9 @@ async function main() {
   Network.requestIntercepted(async (params) => {
   
     try{
-      let t=fs.fstatSync(fs.openSync('./index.js','r')).mtime
-      if(mtime !== t) {
+      let t=fs.fstatSync(fs.openSync('./hooks.js','r')).mtime
+      if(mtime - t) {
+        console.log(mtime, t)
         mtime=t
         delete require.cache[path.resolve('./hooks.js')]
         let hooks=require('./hooks')
