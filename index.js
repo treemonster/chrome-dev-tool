@@ -95,7 +95,9 @@ async function main() {
         _url2response=hooks.url2response||url2response
         _should_no_cache=hooks.should_no_cache||should_no_cache
       }
-    }catch(e) {}
+    }catch(e) {
+      console.log('Failed to load hooks.js: ', e)
+    }
 
     const { interceptionId, request, responseHeaders, responseStatusCode }=params
     let fn=_url2filename(request.url)||url2filename(request.url)
