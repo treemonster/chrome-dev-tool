@@ -56,9 +56,13 @@ async function main() {
   const client = await CDP({ port: chrome.port })
   const { Runtime, Network, Page, Console } = client
   await Promise.all([Runtime.enable(), Network.enable(), Console.enable()])
+
   await Network.setRequestInterception({
     patterns: [{
       resourceType: 'Script',
+      interceptionStage: 'HeadersReceived',
+    }, {
+      resourceType: 'XHR',
       interceptionStage: 'HeadersReceived',
     }, {
       resourceType: 'Document',
