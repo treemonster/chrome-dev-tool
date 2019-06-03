@@ -106,7 +106,7 @@ async function main() {
     const bodyData = response.base64Encoded ? new Buffer(response.body, 'base64') : new Buffer(response.body)
 
     let newBody=readFileSync(fn) || bodyData
-    if((responseHeaders['Content-Type']+'').match(/charset.*?gb/i)) {
+    if((responseHeaders['Content-Type']+'').match(/charset.*?gb/i)||bodyData.slice(0, 2000).toString('utf-8').match(/meta.*?Content-Type.*?gb/i)) {
       responseHeaders['Content-Type']='text/html;charset=utf-8'
       newBody=iconv.decode(new Buffer(response.body, 'base64'), 'gbk')
     }
