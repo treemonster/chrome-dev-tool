@@ -4,13 +4,13 @@ const fs=require('fs')
 const path=require('path')
 const iconv=require('iconv-lite')
 
-let url2filename=(url)=>{
+let url2filename=({url, postData})=>{
   return __dirname+'/data/'+url.replace(/^https*\:\/\/(.+?)\/.*?([^\/]*?)(?:\?.*|$)/g, (_, a, b)=>{
     return a+'/'+(md5(url).substr(0, 8)+'/'+cut(b, 15, 15)).replace(/[^a-z\d\.]/ig, '_')
   })
-}, url2response=(url, response)=>{
+}, url2response=({url, postData, response})=>{
   return response
-}, should_no_cache=(url)=>false
+}, should_no_cache=({url, postData})=>false
 
 let _url2filename=url2filename,
   _url2response=url2response,
@@ -102,7 +102,12 @@ async function main() {
     }
 
     const { interceptionId, request, responseHeaders, responseStatusCode }=params
-    let fn=_url2filename(request.url)||url2filename(request.url)
+    const Args={
+      url: request.url,
+      postData: request.postData,
+      response: null,
+    }
+    let fn=_url2filename(Args)||url2filename(Args)
     if(responseStatusCode !== 200) return Network.continueInterceptedRequest(params)
     const response = await Network.getResponseBodyForInterception({ interceptionId })
     let bodyData = response.base64Encoded ? new Buffer(response.body, 'base64') : new Buffer(response.body)
@@ -111,8 +116,9 @@ async function main() {
       bodyData=iconv.decode(bodyData, 'gbk')
     }
     let newBody=cache=readFileSync(fn) || bodyData
-    if(_should_no_cache(request.url) || should_no_cache(request.url)) newBody=bodyData
-    newBody=_url2response(request.url, newBody) || url2response(request.url, newBody)
+    if(_should_no_cache(Args) || should_no_cache(Args)) newBody=bodyData
+    Args.response=newBody
+    newBody=_url2response(Args) || url2response(Args)
     if(Buffer.compare(Buffer.from(cache||NOTHING), Buffer.from(newBody))) writeFileSync(fn, newBody)
     let header=`HTTP/1.1 200 OK\r\n`
     responseHeaders['content-length']=newBody.length
