@@ -25,6 +25,8 @@ const {
   CHROME_TOOL_INITJS,
 }=require('./tools')
 
+const NOTHING=Buffer.alloc(0)
+
 function writeFileSync(fn, str) {
   path.normalize(fn+'/../').split(path.sep).reduce((a, b)=>{
     a=a+path.sep+b
@@ -103,17 +105,15 @@ async function main() {
     let fn=_url2filename(request.url)||url2filename(request.url)
     if(responseStatusCode !== 200) return Network.continueInterceptedRequest(params)
     const response = await Network.getResponseBodyForInterception({ interceptionId })
-    const bodyData = response.base64Encoded ? new Buffer(response.body, 'base64') : new Buffer(response.body)
-
-    let newBody=readFileSync(fn) || bodyData
+    let bodyData = response.base64Encoded ? new Buffer(response.body, 'base64') : new Buffer(response.body)
     if((responseHeaders['Content-Type']+'').match(/charset.*?gb/i)||bodyData.slice(0, 2000).toString('utf-8').match(/meta.*?Content-Type.*?gb/i)) {
       responseHeaders['Content-Type']='text/html;charset=utf-8'
-      newBody=iconv.decode(new Buffer(response.body, 'base64'), 'gbk')
+      bodyData=iconv.decode(bodyData, 'gbk')
     }
+    let newBody=cache=readFileSync(fn) || bodyData
+    if(_should_no_cache(request.url) || should_no_cache(request.url)) newBody=bodyData
     newBody=_url2response(request.url, newBody) || url2response(request.url, newBody)
-    if(_should_no_cache(request.url) || should_no_cache(request.url)) {
-      newBody=bodyData
-    }else if(newBody===bodyData) writeFileSync(fn, newBody)
+    if(Buffer.compare(Buffer.from(cache||NOTHING), Buffer.from(newBody))) writeFileSync(fn, newBody)
     let header=`HTTP/1.1 200 OK\r\n`
     responseHeaders['content-length']=newBody.length
     for(let a in responseHeaders) header+=a.replace(/(^|-)([a-z])/g, (_, a, b)=>a+b.toUpperCase())+': '+responseHeaders[a]+'\r\n'
