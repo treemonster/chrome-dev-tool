@@ -86,8 +86,20 @@ async function main() {
 
   Network.requestIntercepted(async (params) => {
 
+    const { interceptionId, request, responseHeaders, responseStatusCode }=params
+    const addHeaders=[]
+    const Args={
+      url: request.url,
+      postData: request.postData,
+      requestHeaders: request.headers,
+      response: null,
+      addResponseHeader: (key, value)=>addHeaders.push([key, value]),
+    }
+
     try{
-      let t=fs.fstatSync(fs.openSync('./hooks.js','r')).mtime
+      let fd=fs.openSync('./hooks.js','r')
+      let t=fs.fstatSync(fd).mtime
+      fs.closeSync(fd)
       if(mtime - t) {
         console.log(mtime, t)
         mtime=t
@@ -99,16 +111,6 @@ async function main() {
       }
     }catch(e) {
       console.log('Failed to load hooks.js: ', e)
-    }
-
-    const { interceptionId, request, responseHeaders, responseStatusCode }=params
-    const addHeaders=[]
-    const Args={
-      url: request.url,
-      postData: request.postData,
-      requestHeaders: request.headers,
-      response: null,
-      addResponseHeader: (key, value)=>addHeaders.push([key, value]),
     }
 
     let fn=_url2filename(Args)||url2filename(Args)
