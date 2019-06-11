@@ -44,3 +44,9 @@
 0. 添加postdata参数，可以在hooks里面得到post的数据
 0. 修改错误的缓存逻辑
 
+---
+
+## 20190611更新
+
+0. 增加更多接口响应相关参数和方法，addResponseHeader()添加自定义响应头，deleteResponseHeader删除默认相应头，responseHeaders获取相应头
+

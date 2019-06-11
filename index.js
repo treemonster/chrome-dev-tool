@@ -93,7 +93,9 @@ async function main() {
       postData: request.postData,
       requestHeaders: request.headers,
       response: null,
+      responseHeaders: responseHeaders,
       addResponseHeader: (key, value)=>addHeaders.push([key, value]),
+      deleteResponseHeader: (key)=>delete responseHeaders[key],
     }
 
     try{
