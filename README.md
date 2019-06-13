@@ -50,3 +50,6 @@
 
 0. 增加更多接口响应相关参数和方法，addResponseHeader()添加自定义响应头，deleteResponseHeader删除默认相应头，responseHeaders获取相应头
 
+## 20190613更新
+
+0. 删掉了tools，这个功能基本没有使用的场景，删

@@ -16,15 +16,6 @@ let _url2filename=url2filename,
   _url2response=url2response,
   _should_no_cache=should_no_cache
 
-const {
-  SPEC_STR,
-  node2chrome,
-  chrome2node,
-  BackgroundAPI,
-  FrontAPI,
-  CHROME_TOOL_INITJS,
-}=require('./tools')
-
 const NOTHING=Buffer.alloc(0)
 
 function writeFileSync(fn, str) {
@@ -74,15 +65,6 @@ async function main() {
       interceptionStage: 'HeadersReceived',
     }]
   })
-  const _node2chrome=node2chrome(client)
-  const _chrome2node=chrome2node(client)
-
-  client.on('event', (message)=>{
-    if (message.method !== 'Network.requestWillBeSent') return
-    _node2chrome(CHROME_TOOL_INITJS)
-  })
-
-  Console.messageAdded(a=>_chrome2node(a))
 
   Network.requestIntercepted(async (params) => {
 
