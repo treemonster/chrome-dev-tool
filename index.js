@@ -47,26 +47,12 @@ async function main() {
     ]
   })
   const client = await CDP({ port: chrome.port })
-  const { Runtime, Network, Page, Console } = client
-  await Promise.all([Runtime.enable(), Network.enable(), Console.enable()])
+  const { Runtime, Network, Page } = client
+  await Promise.all([Runtime.enable(), Network.enable(), ])
 
   await Network.setRequestInterception({
-    patterns: [{
-      resourceType: 'Script',
-      interceptionStage: 'HeadersReceived',
-    }, {
-      resourceType: 'XHR',
-      interceptionStage: 'HeadersReceived',
-    }, {
-      resourceType: 'Document',
-      interceptionStage: 'HeadersReceived',
-    }, {
-      resourceType: 'Stylesheet',
-      interceptionStage: 'HeadersReceived',
-    }, {
-      resourceType: 'Image',
-      interceptionStage: 'HeadersReceived',
-    }]
+    patterns: 'Script,XHR,Document,Stylesheet,Image'.split(',')
+      .map(resourceType=>({resourceType, interceptionStage: 'HeadersReceived'}))
   })
 
   Network.requestIntercepted(async (params) => {
