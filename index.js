@@ -63,12 +63,20 @@ async function main() {
     }, {
       resourceType: 'Stylesheet',
       interceptionStage: 'HeadersReceived',
+    }, {
+      resourceType: 'Image',
+      interceptionStage: 'HeadersReceived',
     }]
   })
 
   Network.requestIntercepted(async (params) => {
 
     const { interceptionId, request, responseHeaders, responseStatusCode }=params
+    const deleteResponseHeader=(key)=>{
+      for(let k in responseHeaders) {
+        if(key.toLowerCase()===k.toLowerCase()) delete responseHeaders[k]
+      }
+    }
     const addHeaders=[]
     const Args={
       url: request.url,
@@ -77,7 +85,8 @@ async function main() {
       response: null,
       responseHeaders: responseHeaders,
       addResponseHeader: (key, value)=>addHeaders.push([key, value]),
-      deleteResponseHeader: (key)=>delete responseHeaders[key],
+      deleteResponseHeader,
+      sleep: ms=>new Promise(r=>setTimeout(r, ms)),
     }
 
     try{
@@ -109,7 +118,7 @@ async function main() {
     let newBody=cache=readFileSync(fn) || bodyData
     if(_should_no_cache(Args) || should_no_cache(Args)) newBody=bodyData
     Args.response=newBody
-    newBody=_url2response(Args) || url2response(Args)
+    newBody=(await _url2response(Args)) || url2response(Args)
     if(responseStatusCode!==200 && (!newBody || !newBody.length)) return Network.continueInterceptedRequest(params)
     if(Buffer.compare(Buffer.from(cache||NOTHING), Buffer.from(newBody))) writeFileSync(fn, newBody)
     let header=`HTTP/1.1 200 OK\r\n`
@@ -118,13 +127,13 @@ async function main() {
       delete responseHeaders[key]
       delete responseHeaders[key.toLowerCase()]
     })
+    deleteResponseHeader('content-length')
     responseHeaders['content-length']=newBody.length
     for(let a in responseHeaders) header+=a.replace(/(^|-)([a-z])/g, (_, a, b)=>a+b.toUpperCase())+': '+responseHeaders[a]+'\r\n'
-    let resp=header+`\r\n`+newBody+`\r\n\r\n`
-
+    let resp=Buffer.concat([header, `\r\n`, newBody, `\r\n\r\n`].map(c=>Buffer.from(c)))
     Network.continueInterceptedRequest({
       interceptionId,
-      rawResponse: response.base64Encoded ? new Buffer(resp).toString('base64'): resp,
+      rawResponse: response.base64Encoded ? resp.toString('base64'): resp,
     })
   })
 

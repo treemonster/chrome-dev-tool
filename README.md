@@ -53,3 +53,9 @@
 ## 20190613更新
 
 0. 删掉了tools，这个功能基本没有使用的场景，删
+
+## 20190619更新
+
+0. 增加image的拦截
+0. 修复buffer类型response的拼接方式
+0. url2response允许标记为一个async function，可以使用sleep方法来延迟返回，测试网络超时更方便
