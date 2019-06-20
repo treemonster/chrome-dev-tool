@@ -1,5 +1,17 @@
+// 自定义url与缓存文件名的映射关系
+exports.url2filename=({url})=>{
+  return
+}
+
 // 根据当前请求的url和响应，选择性的修改响应结果
-exports.url2response=(url, response)=>{
+exports.url2response=({
+  url, response, postData,
+  requestHeaders,
+  responseHeaders,
+  addResponseHeader,
+  deleteResponseHeader,
+  sleep,
+})=>{
   console.log({url, response})
   if(!url.match(/^https\:\/\/www.baidu.com\/$/)) return
   return `<h1>blocked by chrome-dev-tool</h1>`
@@ -7,6 +19,6 @@ exports.url2response=(url, response)=>{
 
 // 是否需要缓存这个请求的结果
 // 如果return true，则即使文件内容里存在历史响应结果，也不会返回文件内容
-exports.should_no_cache=(url)=>{
+exports.should_no_cache=({url})=>{
   if(url.match(/jsonp/)) return true
 }
