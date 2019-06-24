@@ -63,6 +63,7 @@ async function main() {
         if(key.toLowerCase()===k.toLowerCase()) delete responseHeaders[k]
       }
     }
+    let status=responseStatusCode
     const addHeaders=[]
     const Args={
       url: request.url,
@@ -71,6 +72,10 @@ async function main() {
       response: null,
       responseHeaders: responseHeaders,
       addResponseHeader: (key, value)=>addHeaders.push([key, value]),
+      go302: (r_url)=>{
+        Args.addResponseHeader('Location', r_url)
+        status=302
+      },
       deleteResponseHeader,
       sleep: ms=>new Promise(r=>setTimeout(r, ms)),
     }
@@ -105,9 +110,10 @@ async function main() {
     if(_should_no_cache(Args) || should_no_cache(Args)) newBody=bodyData
     Args.response=newBody
     newBody=(await _url2response(Args)) || url2response(Args)
+    // 待改，非200时用自定义数据
     if(responseStatusCode!==200 && (!newBody || !newBody.length)) return Network.continueInterceptedRequest(params)
     if(Buffer.compare(Buffer.from(cache||NOTHING), Buffer.from(newBody))) writeFileSync(fn, newBody)
-    let header=`HTTP/1.1 200 OK\r\n`
+    let header=`HTTP/1.1 ${status} OK\r\n`
     addHeaders.map(([key, value])=>{
       header+=key+': '+value+'\r\n'
       delete responseHeaders[key]
