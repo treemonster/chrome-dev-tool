@@ -6,7 +6,7 @@ const iconv=require('iconv-lite')
 
 let url2filename=({url, requestHeaders, addResponseHeader, postData})=>{
   return __dirname+'/data/'+url.replace(/^https*\:\/\/(.+?)\/.*?([^\/]*?)(?:\?.*|$)/g, (_, a, b)=>{
-    return a+'/'+(md5(url).substr(0, 8)+'/'+cut(b, 15, 15)).replace(/[^a-z\d\.]/ig, '_')
+    return a.replace(/\:/,'_')+'/'+(md5(url).substr(0, 8)+'/'+cut(b, 15, 15)).replace(/[^a-z\d\.]/ig, '_')
   })
 }, url2response=({url, requestHeaders, addResponseHeader, postData, response})=>{
   return response
