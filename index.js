@@ -78,6 +78,7 @@ async function main() {
       },
       deleteResponseHeader,
       sleep: ms=>new Promise(r=>setTimeout(r, ms)),
+      setStatusCode: (code=200)=>status=code,
     }
 
     try{
@@ -110,7 +111,6 @@ async function main() {
     if(_should_no_cache(Args) || should_no_cache(Args)) newBody=bodyData
     Args.response=newBody
     newBody=(await _url2response(Args)) || url2response(Args)
-    // 待改，非200时用自定义数据
     if(responseStatusCode!==200 && (!newBody || !newBody.length)) return Network.continueInterceptedRequest(params)
     if(Buffer.compare(Buffer.from(cache||NOTHING), Buffer.from(newBody))) writeFileSync(fn, newBody)
     let header=`HTTP/1.1 ${status} OK\r\n`

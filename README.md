@@ -59,3 +59,7 @@
 0. 增加image的拦截
 0. 修复buffer类型response的拼接方式
 0. url2response允许标记为一个async function，可以使用sleep方法来延迟返回，测试网络超时更方便
+
+## 20190626更新
+
+0. 增加 setStatusCode 方法，可修改响应头状态码
