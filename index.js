@@ -38,7 +38,23 @@ function cut(str, a, b) {
   return str.replace(new RegExp('(^.{'+a+'}).*?(.{'+b+'}$)', 'g'), '$1...$2')
 }
 
-let mtime=0
+const require_file_mtime={}
+function require_file(fn) {
+  const abs_fn=path.resolve(fn)
+  try{
+    const fd=fs.openSync(abs_fn, 'r')
+    const {mtime}=fs.fstatSync(fd)
+    const _mtime=require_file_mtime[abs_fn]||0
+    fs.closeSync(fd)
+    if(_mtime - mtime) {
+      require_file_mtime[abs_fn]=mtime
+      delete require.cache[abs_fn]
+    }
+    return require(abs_fn)
+  }catch(e) {
+    console.log('Failed to load '+abs_fn+': ', e)
+  }
+}
 
 async function main() {
   const chrome = await chromeLauncher.launch({
@@ -81,22 +97,11 @@ async function main() {
       setStatusCode: (code=200)=>status=code,
     }
 
-    try{
-      let fd=fs.openSync('./hooks.js','r')
-      let t=fs.fstatSync(fd).mtime
-      fs.closeSync(fd)
-      if(mtime - t) {
-        console.log(mtime, t)
-        mtime=t
-        delete require.cache[path.resolve('./hooks.js')]
-        let hooks=require('./hooks')
-        _url2filename=hooks.url2filename||url2filename
-        _url2response=hooks.url2response||url2response
-        _should_no_cache=hooks.should_no_cache||should_no_cache
-      }
-    }catch(e) {
-      console.log('Failed to load hooks.js: ', e)
-    }
+    let hooks=require_file(__dirname+'/hooks.js')
+    if(hooks.HOOKS_FILE) hooks=require_file(hooks.HOOKS_FILE)
+    _url2filename=hooks.url2filename||url2filename
+    _url2response=hooks.url2response||url2response
+    _should_no_cache=hooks.should_no_cache||should_no_cache
 
     let fn=_url2filename(Args)||url2filename(Args)
     const response = responseStatusCode===200?

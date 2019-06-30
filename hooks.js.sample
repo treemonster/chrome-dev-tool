@@ -1,3 +1,7 @@
+// 如果hooks.js文件放在项目目录下，那么这里仅需要导出这个文件路径字符串即可
+// 当HOOKS_FILE这个导出值存在时，本文件内定义的其他编程接口将无效。以HOOKS_FILE指定的hooks.js内容为准
+exports.HOOKS_FILE='path/to/hooks.js'
+
 // 自定义url与缓存文件名的映射关系
 exports.url2filename=({url})=>{
   return
