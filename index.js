@@ -56,6 +56,54 @@ function require_file(fn) {
   }
 }
 
+const makeRequestPipe=({url, method, postData, headers}, Args)=>({
+  requestOrigin,
+  responseOrigin,
+  timeout,
+})=>new Promise((resolve, reject)=>{
+  Args.updateCORSHeaders()
+  const uu=require('url')
+  let {protocol, hostname, port}=uu.parse(responseOrigin)
+  const {path}=uu.parse(url)
+  timeout=timeout||3e3
+  const tout=setTimeout(_=>reject(), timeout)
+  let http
+  if(protocol==='http:') {
+    http=require('http')
+    port=port||80
+  }else{
+    http=require('https')
+    port=port||443
+  }
+  if(headers.Referer) headers.Referer=requestOrigin+uu.parse(headers.Referer).path
+  headers.Origin=requestOrigin
+
+  if(postData) headers['Content-Length']=Buffer.byteLength(postData)
+  const req=http.request({
+    hostname,
+    port,
+    method,
+    path,
+    headers,
+    timeout,
+  }, res=>{
+    Args.setStatusCode(res.statusCode)
+    // res.headers
+    let buf=Buffer.alloc(0)
+    res.on('data', (chunk) => buf=Buffer.concat([buf, chunk]))
+    res.on('end', _=>{
+      resolve(buf)
+      clearTimeout(tout)
+    })
+    res.on('error', e=>{
+      reject(e)
+      clearTimeout(tout)
+    })
+  })
+  if(postData) req.write(postData)
+  req.end()
+})
+
 async function main() {
   const chrome = await chromeLauncher.launch({
     chromeFlags: [
@@ -87,6 +135,12 @@ async function main() {
       requestHeaders: request.headers,
       response: null,
       responseHeaders: responseHeaders,
+      updateCORSHeaders: _=>{
+        Args.deleteResponseHeader('Access-Control-Allow-Credentials')
+        Args.deleteResponseHeader('Access-Control-Allow-Origin')
+        Args.addResponseHeader('Access-Control-Allow-Credentials', 'true')
+        Args.addResponseHeader('Access-Control-Allow-Origin', Args.requestHeaders.Origin)
+      },
       addResponseHeader: (key, value)=>addHeaders.push([key, value]),
       go302: (r_url)=>{
         Args.addResponseHeader('Location', r_url)
@@ -96,6 +150,7 @@ async function main() {
       sleep: ms=>new Promise(r=>setTimeout(r, ms)),
       setStatusCode: (code=200)=>status=code,
     }
+    Args.requestPipe=makeRequestPipe(request, Args)
 
     let hooks=require_file(__dirname+'/hooks.js')
     if(hooks.HOOKS_FILE) hooks=require_file(hooks.HOOKS_FILE)

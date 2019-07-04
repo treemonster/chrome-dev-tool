@@ -67,3 +67,20 @@
 ## 20190630更新
 
 0. 增加编程接口外部文件引用方式，可以在 hooks.js 中自定义引入项目文件夹中的hooks.js，切换项目更方便
+
+## 20190704更新
+
+0. 增加 requestPipe 方法，该方法可以把请求数据转发到目标服务器，支持参数
+```
+{
+  requestOrigin: 目标服务器接受的请求来源
+  responseOrigin: 目标服务器来源
+  timeout: 转发请求超时
+}
+```
+requestOrigin和responseOrigin，仅包含协议、域名及端口号，例如：
+http://example.com:81
+https://example.com
+都是合法的origin
+
+0. 增加 updateCORSHeaders 方法，覆盖跨域头部的快捷写法
