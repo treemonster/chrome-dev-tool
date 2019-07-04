@@ -3,3 +3,5 @@ data
 hooks.js
 _*
 *.hooks.js
+.DS_*
+
