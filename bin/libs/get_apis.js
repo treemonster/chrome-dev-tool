@@ -1,4 +1,4 @@
-const {md5, cut}=require(__dirname+'/common')
+const {md5, cut, requireFile}=require(__dirname+'/common')
 const url2filename=({url, requestHeaders, addResponseHeader, postData})=>{
   return __dirname+'/../../data/'+url.replace(/^https*\:\/\/(.+?)\/.*?([^\/]*?)(?:\?.*|$)/g, (_, a, b)=>{
     return a.replace(/\:/,'_')+'/'+(md5(url).substr(0, 8)+'/'+cut(b, 15, 15)).replace(/[^a-z\d\.]/ig, '_')
@@ -7,26 +7,6 @@ const url2filename=({url, requestHeaders, addResponseHeader, postData})=>{
 const url2response=({response})=>response
 const should_no_cache=_=>false
 const write_cache=false
-
-const fs=require('fs')
-const path=require('path')
-const require_file_mtime={}
-const requireFile=function(fn) {
-  const abs_fn=path.resolve(fn)
-  try{
-    const fd=fs.openSync(abs_fn, 'r')
-    const {mtime}=fs.fstatSync(fd)
-    const _mtime=require_file_mtime[abs_fn]||0
-    fs.closeSync(fd)
-    if(_mtime - mtime) {
-      require_file_mtime[abs_fn]=mtime
-      delete require.cache[abs_fn]
-    }
-    return require(abs_fn)
-  }catch(e) {
-    console.log('Failed to load '+abs_fn+': ', e)
-  }
-}
 
 const aa=(a, b)=>a===undefined?b:a
 const ss=(a, b)=>async c=>(await aa(a,b)(c))||b(c)

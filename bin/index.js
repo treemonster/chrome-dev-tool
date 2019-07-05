@@ -1,25 +1,50 @@
 const CDP = require('chrome-remote-interface')
 const puppeteer = require('puppeteer')
 
-const {writeFileSync, readFileSync, NOTHING, sleep}=require('./libs/common')
+const {writeFileSync, readFileSync, NOTHING, sleep, fetchUrl, ERROR_TIMEOUT}=require('./libs/common')
 const get_apis=require('./libs/get_apis')
 const make_hooks_args=require('./libs/make_hooks_args')
 const get_response=require('./libs/get_response')
 const make_response=require('./libs/make_response')
 
 const hookClient=async client=>{
-  /*
+
   const {Fetch, Network}=client
   await Promise.all([Fetch.enable(), Network.enable()])
   Fetch.requestPaused(async params=>{
-    Fetch.fulfillRequest({requestId: params.requestId, responseHeaders: [
-      {name: "Content-Type", value: "text/html"},
-    ], responseCode: 200, body: Buffer.from("33").toString("base64")})
-    // Fetch.continueRequest({requestId: params.requestId})
+    const {requestId, request}=params
+    let fetchResult
+    try{
+      fetchResult=await fetchUrl(request)
+    }catch(e) {
+      if(e===ERROR_TIMEOUT) fetchResult={
+        status: 200, headers: {'chrome-dev-tool': 'Fetch-Timeout'}, response: "",
+      }
+    }
+    if(!fetchResult) {
+      Fetch.failRequest({
+        requestId,
+        errorReason: "network unreachable",
+      })
+      return
+    }
+
+    const {status, headers, response}=fetchResult
+    Fetch.fulfillRequest({
+      requestId,
+      responseHeaders: (a=>{
+        for(let key in headers) {
+          let values=headers[key]
+          ; (values.constructor===Array? values: [values]).map(value=>{
+            a.push({name: key, value})
+          })
+        }
+        return a
+      })([]),
+      responseCode: status,
+      body: response.toString("base64")
+    })
   })
-  */
-  const {Network}=client
-  await Promise.all([Network.enable()])
 
   await Network.setRequestInterception({
     patterns: 'Script,XHR,Document,Stylesheet,Image'.split(',')
