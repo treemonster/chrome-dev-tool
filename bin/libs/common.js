@@ -21,7 +21,6 @@ exports.cut=function(str, a, b) {
   return str.replace(new RegExp('(^.{'+a+'}).*?(.{'+b+'}$)', 'g'), '$1...$2')
 }
 exports.NOTHING=Buffer.alloc(0)
-
-
+exports.sleep=ms=>new Promise(r=>setTimeout(r, ms))
 
 

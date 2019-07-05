@@ -1,3 +1,4 @@
+const {sleep}=require('./common')
 const makeRequestPipe=({url, method, postData, headers}, Args)=>({
   requestOrigin,
   responseOrigin,
@@ -83,7 +84,7 @@ module.exports=({
         delete responseHeaders[k]
       }
     },
-    sleep: ms=>new Promise(r=>setTimeout(r, ms)),
+    sleep,
     setStatusCode: (code=200)=>{
       Args.status=code
     },
