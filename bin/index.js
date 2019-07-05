@@ -13,9 +13,8 @@ async function main() {
       '--auto-open-devtools-for-tabs',
     ]
   })
-  const client = await CDP({ port: chrome.port })
-  const { Runtime, Network, Page } = client
-  await Promise.all([Runtime.enable(), Network.enable(), ])
+  const { Network } = await CDP({ port: chrome.port })
+  await Promise.all([Network.enable()])
 
   await Network.setRequestInterception({
     patterns: 'Script,XHR,Document,Stylesheet,Image'.split(',')
