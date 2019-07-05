@@ -5,6 +5,7 @@ const {writeFileSync, readFileSync, NOTHING}=require('./libs/common')
 const get_apis=require('./libs/get_apis')
 const make_hooks_args=require('./libs/make_hooks_args')
 const get_response=require('./libs/get_response')
+const make_response=require('./libs/make_response')
 
 async function main() {
   const chrome = await chromeLauncher.launch({
@@ -25,36 +26,27 @@ async function main() {
 
     const { interceptionId, request, responseHeaders, responseStatusCode }=params
     const Args=make_hooks_args({responseStatusCode, request, responseHeaders})
-    const {url2filename, url2response, should_no_cache}=get_apis()
-    const current_response=await get_response({Network, Args, interceptionId})
-
-    let fn=await url2filename(Args)
-    let newResponse=cache=readFileSync(fn)||current_response
-    if(should_no_cache(Args)) newResponse=current_response
-    Args.response=newResponse
-    newResponse=await url2response(Args)
-    if(responseStatusCode!==200 && (!newResponse || !newResponse.length)) {
+    const {url2filename, url2response, should_no_cache, write_cache}=get_apis()
+    let response=await get_response({Network, Args, interceptionId})
+    let fn, cache
+    if(write_cache) {
+      fn=await url2filename(Args)
+      cache=readFileSync(fn)
+      if(cache && !should_no_cache(Args)) response=cache
+    }
+    Args.response=response
+    response=await url2response(Args)
+    if(responseStatusCode!==200 && (!response || !response.length)) {
       return Network.continueInterceptedRequest(params)
     }
-    if(Buffer.compare(
+    if(write_cache && Buffer.compare(
       Buffer.from(cache||NOTHING),
-      Buffer.from(newResponse))
-    ) writeFileSync(fn, newResponse)
+      Buffer.from(response))
+    ) writeFileSync(fn, response)
 
-    let header=`HTTP/1.1 ${Args.status} OK\r\n`
-    Args.addResponseHeader('Content-Length', newResponse.length)
-    Args.addHeaders.map(([key, value])=>{
-      header+=key+': '+value+'\r\n'
-      Args.deleteResponseHeader(key)
-    })
-    for(let a in responseHeaders) {
-      header+=a.replace(/(^|-)([a-z])/g, (_, a, b)=>a+b.toUpperCase())+': '+responseHeaders[a]+'\r\n'
-    }
-
-    let resp=Buffer.concat([header, `\r\n`, newResponse, `\r\n\r\n`].map(c=>Buffer.from(c)))
     Network.continueInterceptedRequest({
       interceptionId,
-      rawResponse: resp.toString('base64'),
+      rawResponse: make_response({Args, response}).toString('base64'),
     })
   })
 

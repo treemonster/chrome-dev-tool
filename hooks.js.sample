@@ -2,6 +2,11 @@
 // 当HOOKS_FILE这个导出值存在时，本文件内定义的其他编程接口将无效。以HOOKS_FILE指定的hooks.js内容为准
 exports.HOOKS_FILE='path/to/hooks.js'
 
+
+// 是否读写文件缓存，false时文件缓存无效
+// 不设置，默认false
+exports.WRITE_FILE=true
+
 // 自定义url与缓存文件名的映射关系
 exports.url2filename=({url})=>{
   return
@@ -15,6 +20,7 @@ exports.url2response=({
   addResponseHeader,
   deleteResponseHeader,
   setStatusCode,
+  updateCORSHeaders,
   sleep,
 })=>{
   console.log({url, response})

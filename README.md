@@ -84,3 +84,7 @@ https://example.com
 都是合法的origin
 
 0. 增加 updateCORSHeaders 方法，覆盖跨域头部的快捷写法
+
+## 20190705更新
+
+0. 增加 WRITE_FILE 开关，false时不会写入文件缓存，实测大多数情况下文件缓存不是必要的。默认false，如有必要修改缓存文件来调试，则把这个开关定义为true

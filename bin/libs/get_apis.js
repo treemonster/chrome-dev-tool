@@ -6,6 +6,7 @@ const url2filename=({url, requestHeaders, addResponseHeader, postData})=>{
 }
 const url2response=({response})=>response
 const should_no_cache=_=>false
+const write_cache=false
 
 const fs=require('fs')
 const path=require('path')
@@ -27,7 +28,8 @@ const requireFile=function(fn) {
   }
 }
 
-const ss=(a, b)=>async c=>(await (a||b)(c))||b(c)
+const aa=(a, b)=>a===undefined?b:a
+const ss=(a, b)=>async c=>(await aa(a,b)(c))||b(c)
 module.exports=_=>{
   let hooks=requireFile(__dirname+'/../../hooks.js')
   if(hooks.HOOKS_FILE) hooks=requireFile(hooks.HOOKS_FILE)
@@ -36,6 +38,7 @@ module.exports=_=>{
     // should_no_cache 无返回值当作返回false处理
     url2filename: ss(hooks.url2filename, url2filename),
     url2response: ss(hooks.url2response, url2response),
-    should_no_cache: hooks.should_no_cache||should_no_cache,
+    should_no_cache: aa(hooks.should_no_cache, should_no_cache),
+    write_cache: aa(hooks.WRITE_CACHE, write_cache),
   }
 }
