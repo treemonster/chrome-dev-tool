@@ -75,4 +75,4 @@ async function main() {
 
 main().catch(e=>console.log(e))
 
-// https://chromedevtools.github.io/devtools-protocol/tot/DOM
+// https://chromedevtools.github.io/devtools-protocol/tot/Fetch
