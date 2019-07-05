@@ -52,7 +52,7 @@ const updateCDPs=c=>new Promise(done=>{
       const {id}=target
       if(targetsHooked[id]) continue
       targetsHooked[id]=1
-      const {Network, Page} = await CDP(Object.assign({target}, c))
+      const {Network, Page, Fetch} = await CDP(Object.assign({target}, c))
       await Promise.all([Network.enable(), Page.enable()])
       Page.windowOpen(updateCDPs)
       hookNetwork(Network)
@@ -76,3 +76,4 @@ async function main() {
 main().catch(e=>console.log(e))
 
 // https://chromedevtools.github.io/devtools-protocol/tot/Fetch
+// https://github.com/cyrus-and/chrome-remote-interface
