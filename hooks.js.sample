@@ -5,7 +5,7 @@ exports.HOOKS_FILE='path/to/hooks.js'
 
 // 是否读写文件缓存，false时文件缓存无效
 // 不设置，默认false
-exports.WRITE_FILE=true
+exports.WRITE_CACHE=true
 
 // 自定义url与缓存文件名的映射关系
 exports.url2filename=({url})=>{
