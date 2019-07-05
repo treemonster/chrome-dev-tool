@@ -40,7 +40,7 @@ exports.requireFile=fn=>{
     console.log('Failed to load '+abs_fn+': ', e)
   }
 }
-
+const DEFAULT_NETWORK_TIMEOUT=3e3
 const error_timeout=new Error('timeout')
 /**
  success: resolve({status: statusCode, headers: {...}, response: Buffer})
@@ -49,7 +49,7 @@ const error_timeout=new Error('timeout')
 exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resolve, reject)=>{
   const u=require('url')
   let {protocol, hostname, port, path}=u.parse(url)
-  const tout=setTimeout(_=>reject(error_timeout), timeout||3e3)
+  const tout=setTimeout(_=>reject(error_timeout), timeout||DEFAULT_NETWORK_TIMEOUT)
   let http
   if(protocol==='http:') {
     http=require('http')
@@ -88,4 +88,4 @@ exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resol
 })
 
 exports.ERROR_TIMEOUT=error_timeout
-
+exports.DEFAULT_NETWORK_TIMEOUT=DEFAULT_NETWORK_TIMEOUT

@@ -3,6 +3,9 @@
 exports.HOOKS_FILE='path/to/hooks.js'
 
 
+// 网络请求超时，默认3秒
+exports.NETWORK_TIMEOUT=3e3
+
 // 是否读写文件缓存，false时文件缓存无效
 // 不设置，默认false
 exports.WRITE_CACHE=true

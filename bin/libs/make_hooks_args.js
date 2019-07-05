@@ -4,6 +4,7 @@ module.exports=({
   responseStatusCode,
   request,
   responseHeaders,
+  network_timeout,
 })=>{
   const Args={
     addHeaders: [],
@@ -53,7 +54,8 @@ module.exports=({
       headers.Origin=requestOrigin
       try{
         const {status, headers, response}=await fetchUrl({
-          url, method, postData, headers, timeout,
+          url, method, postData, headers,
+          timeout: timeout||network_timeout,
         })
         Args.setStatusCode(status)
         for(let key in headers) Args.addResponseHeader(key, headers[key])

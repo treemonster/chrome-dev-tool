@@ -9,13 +9,14 @@ const make_response=require('./libs/make_response')
 
 const hookClient=async client=>{
 
+  const {url2filename, url2response, should_no_cache, write_cache, network_timeout}=get_apis()
   const {Fetch, Network}=client
   await Promise.all([Fetch.enable(), Network.enable()])
   Fetch.requestPaused(async params=>{
     const {requestId, request}=params
     let fetchResult
     try{
-      fetchResult=await fetchUrl(request)
+      fetchResult=await fetchUrl(Object.assign({timeout: network_timeout}, request))
     }catch(e) {
       if(e===ERROR_TIMEOUT) fetchResult={
         status: 200, headers: {'chrome-dev-tool': 'Fetch-Timeout'}, response: "",
@@ -51,10 +52,9 @@ const hookClient=async client=>{
       .map(resourceType=>({resourceType, interceptionStage: 'HeadersReceived'}))
   })
 
-  Network.requestIntercepted(async (params) => {
-    const { interceptionId, request, responseHeaders, responseStatusCode }=params
-    const Args=make_hooks_args({responseStatusCode, request, responseHeaders})
-    const {url2filename, url2response, should_no_cache, write_cache}=get_apis()
+  Network.requestIntercepted(async params=>{
+    const {interceptionId, request, responseHeaders, responseStatusCode}=params
+    const Args=make_hooks_args({responseStatusCode, request, responseHeaders, network_timeout})
     let response=await get_response({Network, Args, interceptionId})
     let fn, cache
     if(write_cache) {
