@@ -1,3 +1,7 @@
+process.on('uncaughtException', e=>{
+  console.log(e)
+})
+
 const CDP = require('chrome-remote-interface')
 const puppeteer = require('puppeteer')
 
