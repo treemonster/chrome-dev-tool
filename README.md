@@ -89,6 +89,6 @@ https://example.com
 
 0. 增加 WRITE_CACHE 开关，false时不会写入文件缓存，实测大多数情况下文件缓存不是必要的。默认false，如有必要修改缓存文件来调试，则把这个开关定义为true
 
-0. 修复新开页面不能调试的问题
+0. 修复新开页面不能调试的问题（立即点开的页面依然不会被CDP捕获，目前暂无解决方案 https://github.com/GoogleChrome/puppeteer/issues/3667）
 
 0. 增加 网络请求超时参数 NETWORK_TIMEOUT，不设置默认10秒

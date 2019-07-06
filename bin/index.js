@@ -84,11 +84,12 @@ const hookClient=async client=>{
       Buffer.from(cache||NOTHING),
       Buffer.from(response))
     ) writeFileSync(fn, response)
-
-    Network.continueInterceptedRequest({
-      interceptionId,
-      rawResponse: make_response({Args, response}).toString('base64'),
-    })
+    try{
+      Network.continueInterceptedRequest({
+        interceptionId,
+        rawResponse: make_response({Args, response}).toString('base64'),
+      })
+    }catch(e) {}
   })
 }
 
@@ -96,21 +97,25 @@ const targetsHooked={}
 const bindCDP=async (options, targetId)=>{
   if(targetsHooked[targetId]) return
   targetsHooked[targetId]=1
-  hookClient(await CDP(Object.assign({target: targetId}, options)))
+  return hookClient(await CDP(Object.assign({target: targetId}, options)))
 }
 puppeteer.launch({
-  devtools: true,
   defaultViewport: null,
+  ignoreDefaultArgs: true,
+  args: [
+    '--enable-features=NetworkService,NetworkServiceInProcess',
+    '--auto-open-devtools-for-tabs',
+    '--no-first-run',
+    'about:blank',
+  ],
   executablePath: findChrome(),
 }).then(async browser => {
   const port=browser.wsEndpoint().replace(/^.*\/\/.*?\:(\d+).*/,'$1')
-  const bindTarget=target=>{
-    target.page().then(page=>{
-      if(!page) return;
-      page.setBypassCSP(true)
-      bindCDP({port}, target._targetInfo.targetId)
-    })
-  }
+
+  // https://github.com/GoogleChrome/puppeteer/issues/3667
+  // 新开页面到cdp可以博捕捉之间有一段空隙时间，这段时间无法注入代码，暂无解决方案
+
+  const bindTarget=target=>bindCDP({port}, target._targetInfo.targetId)
   browser.targets().filter(t=>t._targetInfo.type==='page').map(bindTarget)
   ; ['targetcreated', 'targetchanged'].map(t=>browser.on(t, bindTarget))
 })
