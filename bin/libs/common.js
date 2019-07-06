@@ -40,7 +40,7 @@ exports.requireFile=fn=>{
     console.log('Failed to load '+abs_fn+': ', e)
   }
 }
-const DEFAULT_NETWORK_TIMEOUT=3e3
+const DEFAULT_NETWORK_TIMEOUT=10e3
 const error_timeout=new Error('timeout')
 /**
  success: resolve({status: statusCode, headers: {...}, response: Buffer})
@@ -75,6 +75,7 @@ exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resol
       headers: res.headers,
       response: Buffer.alloc(0),
     }
+    update_tout()
     res.on('data', chunk=>{
       update_tout()
       result.response=Buffer.concat([result.response, chunk])

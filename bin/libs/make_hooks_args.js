@@ -16,7 +16,7 @@ module.exports=({
     responseHeaders,
     updateCORSHeaders: _=>{
       Args.addResponseHeader('Access-Control-Allow-Credentials', 'true')
-      Args.addResponseHeader('Access-Control-Allow-Origin', Args.requestHeaders.Origin)
+      Args.addResponseHeader('Access-Control-Allow-Origin', Args.requestHeaders.Origin||'*')
     },
     addResponseHeader: (key, value)=>{
       Args.addHeaders.push([key, value])

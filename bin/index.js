@@ -12,14 +12,23 @@ const get_response=require('./libs/get_response')
 const make_response=require('./libs/make_response')
 
 const hookClient=async client=>{
+  const patterns=[/^https*\:\/\//ig]
+  /* 'Script,XHR,Document,Stylesheet,Image'.split(',')
+    .map(resourceType=>({resourceType, interceptionStage: 'HeadersReceived'}))
+    */
 
   const {Fetch, Network}=client
-  await Promise.all([Fetch.enable(), Network.enable()])
+  await Promise.all([Fetch.enable({patterns}), Network.enable()])
   Fetch.requestPaused(async params=>{
     const {requestId, request}=params
+
     const {network_timeout}=get_apis()
     let fetchResult
     try{
+      if(!request.url.match(/^https*\:\/\//)) {
+        Fetch.continueRequest({requestId})
+        return
+      }
       fetchResult=await fetchUrl(Object.assign({timeout: network_timeout}, request))
     }catch(e) {
       if(e===ERROR_TIMEOUT) fetchResult={
@@ -49,12 +58,10 @@ const hookClient=async client=>{
       responseCode: status,
       body: response.toString("base64")
     })
+
   })
 
-  await Network.setRequestInterception({
-    patterns: 'Script,XHR,Document,Stylesheet,Image'.split(',')
-      .map(resourceType=>({resourceType, interceptionStage: 'HeadersReceived'}))
-  })
+  await Network.setRequestInterception({patterns})
 
   Network.requestIntercepted(async params=>{
     const {interceptionId, request, responseHeaders, responseStatusCode}=params
@@ -90,16 +97,22 @@ const bindCDP=async (options, targetId)=>{
   targetsHooked[targetId]=1
   hookClient(await CDP(Object.assign({target: targetId}, options)))
 }
-
 puppeteer.launch({
-  headless: false,
+  devtools: true,
   defaultViewport: null,
 }).then(async browser => {
   const port=browser.wsEndpoint().replace(/^.*\/\/.*?\:(\d+).*/,'$1')
-  const bindTarget=target=>bindCDP({port}, target._targetInfo.targetId)
+  const bindTarget=target=>{
+    target.page().then(page=>{
+      if(!page) return;
+      page.setBypassCSP(true)
+      bindCDP({port}, target._targetInfo.targetId)
+    })
+  }
   browser.targets().filter(t=>t._targetInfo.type==='page').map(bindTarget)
   ; ['targetcreated', 'targetchanged'].map(t=>browser.on(t, bindTarget))
 })
 
 // https://chromedevtools.github.io/devtools-protocol/tot/Fetch
 // https://github.com/cyrus-and/chrome-remote-interface
+// https://github.com/GoogleChrome/puppeteer

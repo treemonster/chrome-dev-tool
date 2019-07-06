@@ -91,6 +91,4 @@ https://example.com
 
 0. 修复新开页面不能调试的问题
 
-0. 增加 网络请求超时参数 NETWORK_TIMEOUT，不设置默认3秒
-
-
+0. 增加 网络请求超时参数 NETWORK_TIMEOUT，不设置默认10秒

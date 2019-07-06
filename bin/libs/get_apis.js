@@ -12,7 +12,7 @@ const network_timeout=DEFAULT_NETWORK_TIMEOUT
 const aa=(a, b)=>a===undefined?b:a
 const ss=(a, b)=>async c=>(await aa(a,b)(c))||b(c)
 module.exports=_=>{
-  let hooks=requireFile(__dirname+'/../../hooks.js')
+  let hooks=requireFile(__dirname+'/../../hooks.js')||{}
   if(hooks.HOOKS_FILE) hooks=requireFile(hooks.HOOKS_FILE)
   return {
     // 自定义 url2filename 和 url2response 不返回值的情况下，将使用默认返回值
