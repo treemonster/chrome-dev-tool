@@ -3,7 +3,8 @@ process.on('uncaughtException', e=>{
 })
 
 const CDP = require('chrome-remote-interface')
-const puppeteer = require('puppeteer')
+const puppeteer = require('puppeteer-core')
+const findChrome = require('chrome-finder')
 
 const {writeFileSync, readFileSync, NOTHING, sleep, fetchUrl, ERROR_TIMEOUT}=require('./libs/common')
 const get_apis=require('./libs/get_apis')
@@ -100,6 +101,7 @@ const bindCDP=async (options, targetId)=>{
 puppeteer.launch({
   devtools: true,
   defaultViewport: null,
+  executablePath: findChrome(),
 }).then(async browser => {
   const port=browser.wsEndpoint().replace(/^.*\/\/.*?\:(\d+).*/,'$1')
   const bindTarget=target=>{

@@ -1,7 +1,8 @@
 {
   "dependencies": {
+    "chrome-finder": "^1.0.5",
     "chrome-remote-interface": "^0.27.1",
     "iconv-lite": "^0.4.24",
-    "puppeteer": "^1.18.1"
+    "puppeteer-core": "^1.18.1"
   }
 }
