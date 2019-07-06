@@ -49,7 +49,11 @@ const error_timeout=new Error('timeout')
 exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resolve, reject)=>{
   const u=require('url')
   let {protocol, hostname, port, path}=u.parse(url)
-  const tout=setTimeout(_=>reject(error_timeout), timeout||DEFAULT_NETWORK_TIMEOUT)
+  let tout=null, update_tout=_=>{
+    clearTimeout(tout)
+    tout=setTimeout(_=>reject(error_timeout), timeout||DEFAULT_NETWORK_TIMEOUT)
+  }
+  update_tout()
   let http
   if(protocol==='http:') {
     http=require('http')
@@ -72,6 +76,7 @@ exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resol
       response: Buffer.alloc(0),
     }
     res.on('data', chunk=>{
+      update_tout()
       result.response=Buffer.concat([result.response, chunk])
     })
     res.on('end', _=>{

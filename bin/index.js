@@ -9,11 +9,11 @@ const make_response=require('./libs/make_response')
 
 const hookClient=async client=>{
 
-  const {url2filename, url2response, should_no_cache, write_cache, network_timeout}=get_apis()
   const {Fetch, Network}=client
   await Promise.all([Fetch.enable(), Network.enable()])
   Fetch.requestPaused(async params=>{
     const {requestId, request}=params
+    const {network_timeout}=get_apis()
     let fetchResult
     try{
       fetchResult=await fetchUrl(Object.assign({timeout: network_timeout}, request))
@@ -54,6 +54,7 @@ const hookClient=async client=>{
 
   Network.requestIntercepted(async params=>{
     const {interceptionId, request, responseHeaders, responseStatusCode}=params
+    const {url2filename, url2response, should_no_cache, write_cache, network_timeout}=get_apis()
     const Args=make_hooks_args({responseStatusCode, request, responseHeaders, network_timeout})
     let response=await get_response({Network, Args, interceptionId})
     let fn, cache
