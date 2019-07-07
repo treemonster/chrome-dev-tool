@@ -14,10 +14,6 @@ const make_response=require('./libs/make_response')
 
 const hookClient=async client=>{
   const patterns=[/^https*\:\/\//ig]
-  /* 'Script,XHR,Document,Stylesheet,Image'.split(',')
-    .map(resourceType=>({resourceType, interceptionStage: 'HeadersReceived'}))
-    */
-
   const {Fetch, Network}=client
   await Promise.all([Fetch.enable({patterns}), Network.enable()])
   Fetch.requestPaused(async params=>{
@@ -95,9 +91,9 @@ const hookClient=async client=>{
 
 const targetsHooked={}
 const bindCDP=async (options, targetId)=>{
-  if(targetsHooked[targetId]) return
+  if(targetsHooked[targetId]) return true
   targetsHooked[targetId]=1
-  return hookClient(await CDP(Object.assign({target: targetId}, options)))
+  await hookClient(await CDP(Object.assign({target: targetId}, options)))
 }
 puppeteer.launch({
   defaultViewport: null,
@@ -114,8 +110,15 @@ puppeteer.launch({
 
   // https://github.com/GoogleChrome/puppeteer/issues/3667
   // 新开页面到cdp可以博捕捉之间有一段空隙时间，这段时间无法注入代码，暂无解决方案
+  // 目前我所使用的reload方式，仅仅让新页面在和cdp建立连接之后重新载入，但在reload之前所发出的请求已确实被后台所记录了
+  // 所以这个方式治标不治本，在特定情况下会引入其他错误。例如页面打开之后调用了统计访问次数的接口，那么这个接口就有可能被调用两次
 
-  const bindTarget=target=>bindCDP({port}, target._targetInfo.targetId)
+  const bindTarget=async target=>{
+    if(await bindCDP({port}, target._targetInfo.targetId)) return;
+    const page=await target.page()
+    if(!page) return;
+    await page.reload()
+  }
   browser.targets().filter(t=>t._targetInfo.type==='page').map(bindTarget)
   ; ['targetcreated', 'targetchanged'].map(t=>browser.on(t, bindTarget))
 })
