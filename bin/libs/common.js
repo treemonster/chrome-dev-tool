@@ -1,6 +1,7 @@
 const fs=require('fs')
 const path=require('path')
 const crypto=require('crypto')
+const iconv=require('iconv-lite')
 exports.writeFileSync=function(fn, str) {
   path.normalize(fn+'/../').split(path.sep).reduce((a, b)=>{
     a=a+path.sep+b
@@ -72,7 +73,7 @@ exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resol
   }, res=>{
     const result={
       status: res.statusCode,
-      headers: res.headers,
+      responseHeaders: res.headers,
       response: Buffer.alloc(0),
     }
     update_tout()
@@ -81,6 +82,13 @@ exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resol
       result.response=Buffer.concat([result.response, chunk])
     })
     res.on('end', _=>{
+      const content_type=exports.getResponseHeader(result.responseHeaders, 'Content-Type')
+      const html=result.response.slice(0, 2000).toString('utf-8')
+      if(content_type.match(/charset.*?gb/i) || html.match(/meta.*?Content-Type.*?gb/i)) {
+        exports.deleteResponseHeader(result.responseHeaders, 'Content-Type')
+        result.responseHeaders['Content-Type']='text/html;charset=utf-8'
+        try{result.response=Buffer.from(iconv.decode(result.response, 'gbk'))}catch(e) {}
+      }
       resolve(result)
       clearTimeout(tout)
     })
@@ -93,5 +101,53 @@ exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resol
   req.end()
 })
 
+exports.headers2kvheaders=headers=>{
+  const nh=[]
+  for(let key in headers) {
+    let values=headers[key]
+    ; (values.constructor===Array? values: [values]).map(value=>{
+      nh.push({name: exports.update_header_key(key), value})
+    })
+  }
+  return nh
+}
+
+exports.getResponseHeader=(responseHeaders, key)=>{
+  for(let k in responseHeaders) {
+    if(key.toLowerCase()!==k.toLowerCase()) continue
+    return responseHeaders[k]
+  }
+  return ''
+}
+
+exports.deleteResponseHeader=(responseHeaders, key)=>{
+  for(let k in responseHeaders) {
+    if(key.toLowerCase()!==k.toLowerCase()) continue
+    delete responseHeaders[k]
+  }
+}
+
+exports.requestPipe=async ({
+  url, method, postData, headers, timeout,
+  requestOrigin, responseOrigin,
+})=>new Promise(async (resolve, reject)=>{
+  const {Referer}=headers
+  if(Referer) headers.Referer=requestOrigin+require('url').parse(Referer).path
+  headers.Origin=requestOrigin
+  try{
+    resolve(await exports.fetchUrl({url, method, postData, headers, timeout}))
+  }catch(e) {
+    reject()
+  }
+})
+exports.update_header_key=key=>{
+  return key.replace(/(^|-)([a-z])/g, (_, a, b)=>a+b.toUpperCase())
+}
+
+exports.ERROR_TIMEOUT_FETCH={
+  status: 503,
+  responseHeaders: {'Chrome-Dev-Tool': 'Fetch-Timeout'},
+  response: "",
+}
 exports.ERROR_TIMEOUT=error_timeout
 exports.DEFAULT_NETWORK_TIMEOUT=DEFAULT_NETWORK_TIMEOUT
