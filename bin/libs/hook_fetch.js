@@ -14,16 +14,15 @@ module.exports=async ({
     response,
     responseHeaders,
   }
-
   const _addHeaders=[]
   const Args={
-    url, method, postData, headers,
+    url, method, postData,
     requestHeaders: headers,
     response: null,
     responseHeaders,
     updateCORSHeaders: _=>Args.addResponseHeader({
       'Access-Control-Allow-Credentials': 'true',
-      'Access-Control-Allow-Origin': Args.requestHeaders.Origin||'*',
+      'Access-Control-Allow-Origin': headers.Origin||'*',
     }),
     addResponseHeader: (key, value)=>{
       if(typeof key!=='string') for(let k in key) _addHeaders.push([k, key[k]])
@@ -39,7 +38,6 @@ module.exports=async ({
     setStatusCode: (code=200)=>result.status=code,
     getStatusCode: _=>result.status,
     requestPipe: async ({requestOrigin, responseOrigin, timeout})=>{
-      Args.updateCORSHeaders()
       const {status, responseHeaders, response}=await requestPipe({
         url, method, postData, headers,
         timeout: timeout || network_timeout,
@@ -47,6 +45,7 @@ module.exports=async ({
       })
       Args.setStatusCode(status)
       Args.addResponseHeader(responseHeaders)
+      Args.updateCORSHeaders()
       return response
     }
   }
@@ -67,7 +66,7 @@ module.exports=async ({
   ) writeFileSync(fn, response)
 
   const a_responseHeaders={}
-  Args.addResponseHeader('Content-Length', result.response.length)
+  Args.addResponseHeader('Content-Length', result.response.length+'')
   _addHeaders.map(([key, value])=>{
     a_responseHeaders[update_header_key(key)]=value
     Args.deleteResponseHeader(key)
@@ -75,6 +74,6 @@ module.exports=async ({
   for(let key in Args.responseHeaders) {
     a_responseHeaders[update_header_key(key)]=Args.responseHeaders[key]
   }
-
+  result.responseHeaders=a_responseHeaders
   return result
 }

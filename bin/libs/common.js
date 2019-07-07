@@ -131,6 +131,7 @@ exports.requestPipe=async ({
   url, method, postData, headers, timeout,
   requestOrigin, responseOrigin,
 })=>new Promise(async (resolve, reject)=>{
+  headers=JSON.parse(JSON.stringify(headers))
   const {Referer}=headers
   if(Referer) headers.Referer=requestOrigin+require('url').parse(Referer).path
   headers.Origin=requestOrigin
