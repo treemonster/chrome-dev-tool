@@ -92,3 +92,9 @@ https://example.com
 0. 修复新开页面不能调试的问题（立即点开的页面依然不会被CDP捕获，目前暂无解决方案 https://github.com/GoogleChrome/puppeteer/issues/3667）
 
 0. 增加 网络请求超时参数 NETWORK_TIMEOUT，不设置默认10秒
+
+## 20190708更新
+
+0. 目前已知bug：
+  - 新开tab必须在cdp建立连接之后刷新页面，否则初始请求不会被捕获到
+  - postData太长会被cdp协议忽略掉，因此这类请求无法使用默认结果
