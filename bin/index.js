@@ -32,7 +32,7 @@ const hookClient=async client=>{
     })
 
     try{
-      const {url, method, postData, headers}=request
+      const {url, method, postData, hasPostData, headers}=request
       const fetchObj={
         url, method, postData, headers,
         timeout: hooks.network_timeout,
@@ -46,7 +46,7 @@ const hookClient=async client=>{
     }catch(e) {
       if(e===ERROR_TIMEOUT) resp(ERROR_TIMEOUT_FETCH)
       else {
-        Fetch.failRequest({requestId, errorReason: "network unreachable"})
+        Fetch.failRequest({requestId, errorReason: "Failed"})
       }
     }
 
