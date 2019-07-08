@@ -150,5 +150,10 @@ exports.ERROR_TIMEOUT_FETCH={
   responseHeaders: {'Chrome-Dev-Tool': 'Fetch-Timeout'},
   response: "",
 }
+exports.ERROR_FAILED_FETCH={
+  status: 444,
+  responseHeaders: {'Chrome-Dev-Tool': 'Fetch-Failed'},
+  response: "",
+}
 exports.ERROR_TIMEOUT=error_timeout
 exports.DEFAULT_NETWORK_TIMEOUT=DEFAULT_NETWORK_TIMEOUT
