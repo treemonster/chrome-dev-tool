@@ -5,7 +5,7 @@ const findChrome = require('chrome-finder')
 const get_apis=require('./get_apis')
 const {
   NOTHING,
-  sleep, fetchUrl, getResponseHeader, deleteResponseHeader,
+  sleep, fetchUrl, getHeader, deleteHeader,
   requestPipe, update_header_key, headers2kvheaders,
   ERROR_TIMEOUT, ERROR_TIMEOUT_FETCH, ERROR_FAILED_FETCH,
 }=require('./common')
@@ -39,12 +39,12 @@ const do_hooks=async ({
       if(typeof key!=='string') for(let k in key) _addHeaders.push([k, key[k]])
       else _addHeaders.push([key, value])
     },
-    getResponseHeader: key=>getResponseHeader(responseHeaders, key),
+    getResponseHeader: key=>getHeader(responseHeaders, key),
     go302: (r_url)=>{
       Args.addResponseHeader('Location', r_url)
       result.status=302
     },
-    deleteResponseHeader: key=>deleteResponseHeader(responseHeaders, key),
+    deleteResponseHeader: key=>deleteHeader(responseHeaders, key),
     sleep,
     setStatusCode: (code=200)=>result.status=code,
     getStatusCode: _=>result.status,
@@ -89,12 +89,8 @@ const do_hooks=async ({
   return result
 }
 
-exports.IGNORE_HOOK=0x01
 exports.hookRequest=async request=>{
   const {url, method, postData, headers}=request
-
-  // 非http/https开头的链接不需要处理
-  if(!url.match(/^https*\:\/\//)) return IGNORE_HOOK
 
   const hooks=get_apis()
   const resp=({status, responseHeaders, response})=>({
@@ -133,6 +129,7 @@ exports.watchClient=async onClient=>{
     ],
     executablePath: findChrome(),
   }).then(async browser => {
+
     const options={
       port: browser.wsEndpoint().replace(/^.*\/\/.*?\:(\d+).*/,'$1'),
     }
@@ -154,6 +151,10 @@ exports.watchClient=async onClient=>{
     }
     browser.targets().map(bindTarget)
     ; ['targetcreated', 'targetchanged'].map(t=>browser.on(t, bindTarget))
+
+    browser.on('disconnected', _=>{
+      process.exit()
+    })
   })
 
 }

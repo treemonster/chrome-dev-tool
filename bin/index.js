@@ -1,24 +1,27 @@
 process.on('uncaughtException', e=>console.log(e))
 
-const {hookRequest, watchClient, IGNORE_HOOK}=require('./libs/main_hooks')
+const {hookRequest, watchClient}=require('./libs/main_hooks')
+const localServer=require('./libs/common').newLocalServer()
 
 watchClient(async client=>{
   const {Fetch}=client
   const patterns=[/^https*\:\/\//ig]
+  const {bindHookHandler, port}=await localServer
   await Promise.all([Fetch.enable({patterns})])
+  bindHookHandler(hookRequest)
   Fetch.requestPaused(async ({requestId, request})=>{
-    const res=await hookRequest(request)
-    if(res===IGNORE_HOOK) Fetch.continueRequest({requestId})
-    const {responseCode, responseHeaders, response}=res
-    Fetch.fulfillRequest({
-      requestId,
-      responseCode,
-      responseHeaders,
-      body: response.toString("base64"),
-    })
+    let {url}=request
+
+    // 非http/https开头的链接不需要处理
+    if(url.match(/^https*\:\/\//)) {
+      url=`http://127.0.0.1:${port}/?url=${encodeURIComponent(url)}`
+    }
+
+    Fetch.continueRequest({requestId, url})
   })
 })
 
 // https://chromedevtools.github.io/devtools-protocol/tot/Fetch
 // https://github.com/cyrus-and/chrome-remote-interface
 // https://github.com/GoogleChrome/puppeteer
+

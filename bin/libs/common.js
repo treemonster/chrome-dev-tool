@@ -2,6 +2,10 @@ const fs=require('fs')
 const path=require('path')
 const crypto=require('crypto')
 const iconv=require('iconv-lite')
+const getPort = require('get-port')
+const url=require('url')
+const querystring=require('querystring')
+
 exports.writeFileSync=function(fn, str) {
   path.normalize(fn+'/../').split(path.sep).reduce((a, b)=>{
     a=a+path.sep+b
@@ -82,10 +86,10 @@ exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resol
       result.response=Buffer.concat([result.response, chunk])
     })
     res.on('end', _=>{
-      const content_type=exports.getResponseHeader(result.responseHeaders, 'Content-Type')
+      const content_type=exports.getHeader(result.responseHeaders, 'Content-Type')
       const html=result.response.slice(0, 2000).toString('utf-8')
       if(content_type.match(/charset.*?gb/i) || html.match(/meta.*?Content-Type.*?gb/i)) {
-        exports.deleteResponseHeader(result.responseHeaders, 'Content-Type')
+        exports.deleteHeader(result.responseHeaders, 'Content-Type')
         result.responseHeaders['Content-Type']='text/html;charset=utf-8'
         try{result.response=Buffer.from(iconv.decode(result.response, 'gbk'))}catch(e) {}
       }
@@ -112,18 +116,21 @@ exports.headers2kvheaders=headers=>{
   return nh
 }
 
-exports.getResponseHeader=(responseHeaders, key)=>{
-  for(let k in responseHeaders) {
+exports.getHeader=(Headers, key)=>{
+  for(let k in Headers) {
     if(key.toLowerCase()!==k.toLowerCase()) continue
-    return responseHeaders[k]
+    return Headers[k]
   }
   return ''
 }
 
-exports.deleteResponseHeader=(responseHeaders, key)=>{
-  for(let k in responseHeaders) {
+exports.deleteHeader=(Headers, key)=>{
+  if(Array.isArray(key)) return key.map(k=>{
+    exports.deleteHeader(Headers, k)
+  })
+  for(let k in Headers) {
     if(key.toLowerCase()!==k.toLowerCase()) continue
-    delete responseHeaders[k]
+    delete Headers[k]
   }
 }
 
@@ -157,3 +164,35 @@ exports.ERROR_FAILED_FETCH={
 }
 exports.ERROR_TIMEOUT=error_timeout
 exports.DEFAULT_NETWORK_TIMEOUT=DEFAULT_NETWORK_TIMEOUT
+const getQuery=link=>querystring.parse(url.parse(link).query)
+exports.newLocalServer=async _=>{
+  const port=await getPort()
+  const {deleteHeader}=exports
+  let hookHandler=null
+  require('http').createServer((req, res)=>{
+    const reqObj={
+      url: decodeURIComponent(getQuery(req.url).url),
+      headers: req.headers,
+      method: req.method,
+      postData: Buffer.alloc(0),
+    }
+    const {host}=url.parse(reqObj.url)
+    deleteHeader(reqObj.headers, ['origin', 'host', 'accept-encoding'])
+    reqObj.headers.Host=host
+    reqObj.headers.Origin=host
+    req.on('data', buf=>reqObj.postData=Buffer.concat([reqObj.postData, buf]))
+    req.on('end', async _=>{
+      const {responseCode, responseHeaders, response}=await hookHandler(reqObj)
+      responseHeaders.map(({name, value})=>res.setHeader(name, value))
+      res.writeHead(responseCode, {})
+      res.end(response)
+    })
+  }).listen(port)
+  return {
+    port,
+    bindHookHandler: handler=>hookHandler=handler,
+  }
+}
+
+
+
