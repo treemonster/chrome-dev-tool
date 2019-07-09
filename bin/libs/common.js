@@ -48,7 +48,7 @@ exports.requireFile=fn=>{
 const DEFAULT_NETWORK_TIMEOUT=10e3
 const error_timeout=new Error('timeout')
 /**
- success: resolve({status: statusCode, headers: {...}, response: Buffer})
+ success: resolve({status: statusCode, responseHeaders: {...}, response: Buffer})
  failed: reject(Error)
  */
 exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resolve, reject)=>{
@@ -139,9 +139,15 @@ exports.requestPipe=async ({
   requestOrigin, responseOrigin,
 })=>new Promise(async (resolve, reject)=>{
   headers=JSON.parse(JSON.stringify(headers))
+  const uu=require('url')
+  if(headers.Referer) headers.Referer=requestOrigin+uu.parse(headers.Referer).path
+  headers.Origin=requestOrigin
+  headers.Host=uu.parse(responseOrigin).host
+  url=responseOrigin+uu.parse(url).path
   try{
     resolve(await exports.fetchUrl({url, method, postData, headers, timeout}))
   }catch(e) {
+    console.log(e)
     reject()
   }
 })
@@ -164,38 +170,58 @@ exports.DEFAULT_NETWORK_TIMEOUT=DEFAULT_NETWORK_TIMEOUT
 const getQuery=link=>querystring.parse(url.parse(link).query)
 exports.newLocalServer=async _=>{
   const port=await getPort()
-  const {deleteHeader}=exports
-  let hookHandler=null
+  const {deleteHeader, update_header_key}=exports
+  let hookHandler=null, requestIds=null
   require('http').createServer((req, res)=>{
+    const id=decodeURIComponent(getQuery(req.url).id)
     const reqObj={
-      url: decodeURIComponent(getQuery(req.url).url),
-      headers: req.headers,
-      method: req.method,
+      url: requestIds[id].url,
+      headers: requestIds[id].headers,
+      method: requestIds[id].method,
       postData: Buffer.alloc(0),
     }
     const {host, protocol}=url.parse(reqObj.url)
     deleteHeader(reqObj.headers, ['origin', 'host', 'accept-encoding'])
-    let cors_origin=''
-    if(reqObj.headers.referer) {
-      const {host, protocol}=url.parse(reqObj.headers.referer)
-      cors_origin=protocol+'//'+host
-    }
     reqObj.headers.Host=host
     reqObj.headers.Origin=protocol+'//'+host
     req.on('data', buf=>reqObj.postData=Buffer.concat([reqObj.postData, buf]))
     req.on('end', async _=>{
+      delete requestIds[id]
       const {responseCode, responseHeaders, response}=await hookHandler(reqObj)
-      responseHeaders.concat([
+      const hs=responseHeaders.concat([
         {name: 'Access-Control-Allow-Credentials', value: 'true'},
         {name: 'Access-Control-Allow-Origin', value: cors_origin || '*'},
-      ]).map(({name, value})=>res.setHeader(name, value))
+/*
+        {name: 'X', value: 'z1'},
+        {name: 'X', value: 'z2'},
+        {name: 'Y', value: ['z1', 'z2']},
+        {name: 'Set-Cookie', value: [
+          'X1=222; path=/; HttpOnly; expires=Wed, 08-Jul-20 04:17:17 GMT; max-age=31536000;',
+          'X2=333; path=/; HttpOnly; domain=127.0.0.1',
+          'X5=556; expires=Wed, 08-Jul-20 04:17:17 GMT;',
+          'X6=556; domain=127.0.0.1:81; expires=Wed, 08-Jul-20 04:17:17 GMT;',
+          'X3=555; path=/; HttpOnly; expires=Wed, 08-Jul-20 04:17:17 GMT; max-age=31536000;',
+        ]},
+        Set-Cookie 不生效，待排查
+*/
+      ]).reduce((a, {name, value})=>{
+        name=update_header_key(name)
+        if(!Array.isArray(value)) value=[value]
+        if(!a[name]) a[name]=value
+        else a[name]=a[name].concat(value)
+        return a
+      }, {})
+      for(let name in hs) res.setHeader(name, hs[name])
       res.writeHead(responseCode, {})
       res.end(response)
     })
   }).listen(port)
   return {
     port,
-    bindHookHandler: handler=>hookHandler=handler,
+    bindHookHandler: (handler, id_map)=>{
+      hookHandler=handler
+      requestIds=id_map
+    },
   }
 }
 

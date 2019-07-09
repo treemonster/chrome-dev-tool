@@ -25,15 +25,19 @@ const do_hooks=async ({
     response,
     responseHeaders,
   }
-  const _addHeaders=[]
+  const _addHeaders={}
   const Args={
     url, method, postData,
     requestHeaders: headers,
     response: null,
     responseHeaders,
     addResponseHeader: (key, value)=>{
-      if(typeof key!=='string') for(let k in key) _addHeaders.push([k, key[k]])
-      else _addHeaders.push([key, value])
+      if(typeof key!=='string') for(let k in key) Args.addResponseHeader(k, key[k])
+      else if(Array.isArray(value)) value.map(v=>Args.addResponseHeader(key, v))
+      else {
+        _addHeaders[key]=_addHeaders[key]||[]
+        _addHeaders[key].push(value)
+      }
     },
     getResponseHeader: key=>getHeader(responseHeaders, key),
     go302: (r_url)=>{
@@ -73,10 +77,10 @@ const do_hooks=async ({
 
   const a_responseHeaders={}
   Args.addResponseHeader('Content-Length', result.response.length+'')
-  _addHeaders.map(([key, value])=>{
-    a_responseHeaders[update_header_key(key)]=value
+  for(let key in _addHeaders) {
+    a_responseHeaders[update_header_key(key)]=_addHeaders[key]
     Args.deleteResponseHeader(key)
-  })
+  }
   for(let key in Args.responseHeaders) {
     a_responseHeaders[update_header_key(key)]=Args.responseHeaders[key]
   }
@@ -88,11 +92,22 @@ exports.hookRequest=async request=>{
   const {url, method, postData, headers}=request
 
   const hooks=get_apis()
-  const resp=({status, responseHeaders, response})=>({
-    responseCode: status,
-    responseHeaders: headers2kvheaders(responseHeaders),
-    response: Buffer.from(response),
-  })
+  let cors_origin=''
+  if(headers.Referer) {
+    const {host, protocol}=require('url').parse(headers.Referer)
+    cors_origin=protocol+'//'+host
+  }
+  const resp=({status, responseHeaders, response})=>{
+    deleteHeader(responseHeaders, ['Access-Control-Allow-Credentials', 'Access-Control-Allow-Origin'])
+    return {
+      responseCode: status,
+      responseHeaders: headers2kvheaders(responseHeaders).concat([
+        {name: 'Access-Control-Allow-Credentials', value: 'true'},
+        {name: 'Access-Control-Allow-Origin', value: cors_origin || '*'},
+      ]),
+      response: Buffer.from(response),
+    }
+  }
 
   try{
     const fetchObj={

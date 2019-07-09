@@ -103,3 +103,4 @@ https://example.com
 
 0. postData通过代理请求的方式获取，无论数据多长都可以被捕捉到
 0. 删除 updateCORSHeaders 方法，默认自动补上跨域头部
+0. 代理方式不知为何 set-cookie 无法生效，暂时还是用旧的方式，超长postData依然无法获取
