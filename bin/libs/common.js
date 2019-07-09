@@ -156,14 +156,11 @@ exports.update_header_key=key=>{
 }
 
 const callSetCookiePage=(setCookies, url, idMap, id)=>{
-  if(!setCookies || !setCookies.length) return;
-  console.log(idMap, id)
+  if(!setCookies || !setCookies.length) return false
   idMap[id].setCookies=setCookies
   idMap[id].page.evaluate(({url, id})=>{
-    const a=new XMLHttpRequest
-    a.open('GET', url)
-    a.setRequestHeader('Do-Set-Cookie-requestId', id)
-    a.send()
+    const img=new Image
+    img.src=url+'&?Do-Set-Cookie-requestId='+id
   }, {url, id})
 }
 
@@ -202,7 +199,6 @@ exports.newLocalServer=async _=>{
       delete idMap[id]
     })
     req.on('end', async _=>{
-      delete idMap[id]
       const {responseCode, responseHeaders, response}=await hookHandler(reqObj)
       const hs=responseHeaders.reduce((a, {name, value})=>{
         name=update_header_key(name)
@@ -211,10 +207,12 @@ exports.newLocalServer=async _=>{
         else a[name]=a[name].concat(value)
         return a
       }, {})
-      callSetCookiePage(hs['Set-Cookie'], reqObj.url, idMap, id)
       for(let name in hs) res.setHeader(name, hs[name])
       res.writeHead(responseCode, {})
       res.end(response)
+      if(false===callSetCookiePage(hs['Set-Cookie'], reqObj.url, idMap, id)) {
+        delete idMap[id]
+      }
     })
   }).listen(port)
   return {
