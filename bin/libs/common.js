@@ -155,6 +155,18 @@ exports.update_header_key=key=>{
   return key.replace(/(^|-)([a-z])/g, (_, a, b)=>a+b.toUpperCase())
 }
 
+const callSetCookiePage=(setCookies, url, idMap, id)=>{
+  if(!setCookies || !setCookies.length) return;
+  console.log(idMap, id)
+  idMap[id].setCookies=setCookies
+  idMap[id].page.evaluate(({url, id})=>{
+    const a=new XMLHttpRequest
+    a.open('GET', url)
+    a.setRequestHeader('Do-Set-Cookie-requestId', id)
+    a.send()
+  }, {url, id})
+}
+
 exports.ERROR_TIMEOUT_FETCH={
   status: 503,
   responseHeaders: {'Chrome-Dev-Tool': 'Fetch-Timeout'},
@@ -171,13 +183,14 @@ const getQuery=link=>querystring.parse(url.parse(link).query)
 exports.newLocalServer=async _=>{
   const port=await getPort()
   const {deleteHeader, update_header_key}=exports
-  let hookHandler=null, requestIds=null
+  let hookHandler=null, idMap=null
   require('http').createServer((req, res)=>{
     const id=decodeURIComponent(getQuery(req.url).id)
+    const {request, page}=idMap[id]
     const reqObj={
-      url: requestIds[id].url,
-      headers: requestIds[id].headers,
-      method: requestIds[id].method,
+      url: request.url,
+      headers: request.headers,
+      method: request.method,
       postData: Buffer.alloc(0),
     }
     const {host, protocol}=url.parse(reqObj.url)
@@ -185,30 +198,20 @@ exports.newLocalServer=async _=>{
     reqObj.headers.Host=host
     reqObj.headers.Origin=protocol+'//'+host
     req.on('data', buf=>reqObj.postData=Buffer.concat([reqObj.postData, buf]))
+    req.on('error', _=>{
+      delete idMap[id]
+    })
     req.on('end', async _=>{
-      delete requestIds[id]
+      delete idMap[id]
       const {responseCode, responseHeaders, response}=await hookHandler(reqObj)
-      const hs=responseHeaders.concat([
-/*
-        {name: 'X', value: 'z1'},
-        {name: 'X', value: 'z2'},
-        {name: 'Y', value: ['z1', 'z2']},
-        {name: 'Set-Cookie', value: [
-          'X1=222; path=/; HttpOnly; expires=Wed, 08-Jul-20 04:17:17 GMT; max-age=31536000;',
-          'X2=333; path=/; HttpOnly; domain=127.0.0.1',
-          'X5=556; expires=Wed, 08-Jul-20 04:17:17 GMT;',
-          'X6=556; domain=127.0.0.1:81; expires=Wed, 08-Jul-20 04:17:17 GMT;',
-          'X3=555; path=/; HttpOnly; expires=Wed, 08-Jul-20 04:17:17 GMT; max-age=31536000;',
-        ]},
-        Set-Cookie 不生效，待排查
-*/
-      ]).reduce((a, {name, value})=>{
+      const hs=responseHeaders.reduce((a, {name, value})=>{
         name=update_header_key(name)
         if(!Array.isArray(value)) value=[value]
         if(!a[name]) a[name]=value
         else a[name]=a[name].concat(value)
         return a
       }, {})
+      callSetCookiePage(hs['Set-Cookie'], reqObj.url, idMap, id)
       for(let name in hs) res.setHeader(name, hs[name])
       res.writeHead(responseCode, {})
       res.end(response)
@@ -218,7 +221,7 @@ exports.newLocalServer=async _=>{
     port,
     bindHookHandler: (handler, id_map)=>{
       hookHandler=handler
-      requestIds=id_map
+      idMap=id_map
     },
   }
 }

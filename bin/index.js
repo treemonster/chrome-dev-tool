@@ -4,33 +4,39 @@ const {hookRequest, watchClient}=require('./libs/main_hooks')
 const localServer=require('./libs/common').newLocalServer()
 const id_map={}
 
-watchClient(async client=>{
+watchClient(async (client, page)=>{
   const {Fetch}=client
   const patterns=[/^https*\:\/\//ig]
   const {bindHookHandler, port}=await localServer
-  await Promise.all([Fetch.enable({patterns})])
+  id_map.X=1
   bindHookHandler(hookRequest, id_map)
+  await Promise.all([Fetch.enable({patterns})])
   Fetch.requestPaused(async ({requestId, request})=>{
-    let {url, method, headers}=request
+    let {url, headers}=request
 
     // 非http/https开头的链接不需要处理
     if(!url.match(/^https*\:\/\//)) return Fetch.continueRequest({requestId})
 
-    // 转发还有问题，目前仅让boundary类型请求转发
-    if((headers['Content-Type']+'').match(/boundary/i)) {
-      url=`http://127.0.0.1:${port}/?id=${requestId}`
-      id_map[requestId]=request
-      Fetch.continueRequest({requestId, url})
-    }else{
-      // 直接hook存在问题，超长postData无法获取
-      const {responseCode, responseHeaders, response}=await hookRequest(request)
-      Fetch.fulfillRequest({
-        requestId,
-        responseCode,
-        responseHeaders,
-        body: response.toString('base64'),
-      })
-    }
+console.log(headers['Do-Set-Cookie-requestId'], id_map)
+
+    // cookies 注入
+    if(headers['Do-Set-Cookie-requestId']) return Fetch.fulfillRequest({
+      requestId,
+      responseCode: 200,
+      responseHeaders: [
+        {name: 'Access-Control-Allow-Credentials', value: 'true'},
+        {name: 'Access-Control-Allow-Origin', value: '*'},
+        ...id_map[headers['Do-Set-Cookie-requestId']].setCookies.map(value=>({name: 'Set-Cookie', value})),
+      ],
+      body: "",
+    })
+
+    // 跳转代理
+    url=`http://127.0.0.1:${port}/?id=${requestId}`
+    id_map[requestId]={request, page}
+    console.log(id_map)
+    setTimeout(_=>Fetch.continueRequest({requestId, url}), 1e3)
+
   })
 })
 

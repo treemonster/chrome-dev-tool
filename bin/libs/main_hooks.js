@@ -156,7 +156,7 @@ exports.watchClient=async onClient=>{
       if(targetsHooked[targetId]) return 1
       targetsHooked[targetId]=1
       const client=await CDP(Object.assign({target: targetId}, options))
-      await onClient(client)
+      await onClient(client, page)
       page.reload()
     }
     browser.targets().map(bindTarget)
