@@ -159,8 +159,7 @@ const callSetCookiePage=(setCookies, url, idMap, id)=>{
   if(!setCookies || !setCookies.length) return false
   idMap[id].setCookies=setCookies
   idMap[id].page.evaluate(({url, id})=>{
-    const img=new Image
-    img.src=url+'&?Do-Set-Cookie-requestId='+id
+    (new Image).src=url+'&?Do-Set-Cookie-requestId='+id
   }, {url, id})
 }
 

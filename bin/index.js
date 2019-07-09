@@ -18,12 +18,16 @@ watchClient(async (client, page)=>{
 
     // set-cookie 注入。经跳转的地址，直接 Set-Cookie 无效
     const id=url.replace(/^.*Do-Set-Cookie-requestId=(.+)$|^.*$/, '$1')
-    if(id && id_map[id]) return Fetch.fulfillRequest({
-      requestId,
-      responseCode: 200,
-      responseHeaders: id_map[id].setCookies.map(value=>({name: 'Set-Cookie', value})),
-      body: "",
-    })
+    if(id && id_map[id]) {
+      Fetch.fulfillRequest({
+        requestId,
+        responseCode: 200,
+        responseHeaders: id_map[id].setCookies.map(value=>({name: 'Set-Cookie', value})),
+        body: "",
+      })
+      delete id_map[id]
+      return
+    }
 
     // 跳转代理
     url=`http://127.0.0.1:${port}/?id=${requestId}`
