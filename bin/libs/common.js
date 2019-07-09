@@ -189,8 +189,6 @@ exports.newLocalServer=async _=>{
       delete requestIds[id]
       const {responseCode, responseHeaders, response}=await hookHandler(reqObj)
       const hs=responseHeaders.concat([
-        {name: 'Access-Control-Allow-Credentials', value: 'true'},
-        {name: 'Access-Control-Allow-Origin', value: cors_origin || '*'},
 /*
         {name: 'X', value: 'z1'},
         {name: 'X', value: 'z2'},
