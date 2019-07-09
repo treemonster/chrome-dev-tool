@@ -13,10 +13,10 @@ watchClient(async (client, page)=>{
   Fetch.requestPaused(async ({requestId, request})=>{
     let {url, headers}=request
 
-    // 非http/https开头的链接不需要处理
+    // 非 http/https 开头的链接不需要处理
     if(!url.match(/^https*\:\/\//)) return Fetch.continueRequest({requestId})
 
-    // cookies 注入
+    // set-cookie 注入。经跳转的地址，直接 Set-Cookie 无效
     const id=url.replace(/^.*Do-Set-Cookie-requestId=(.+)$|^.*$/, '$1')
     if(id && id_map[id]) return Fetch.fulfillRequest({
       requestId,
