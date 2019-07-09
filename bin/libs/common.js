@@ -139,9 +139,6 @@ exports.requestPipe=async ({
   requestOrigin, responseOrigin,
 })=>new Promise(async (resolve, reject)=>{
   headers=JSON.parse(JSON.stringify(headers))
-  const {Referer}=headers
-  if(Referer) headers.Referer=requestOrigin+require('url').parse(Referer).path
-  headers.Origin=requestOrigin
   try{
     resolve(await exports.fetchUrl({url, method, postData, headers, timeout}))
   }catch(e) {
@@ -176,14 +173,22 @@ exports.newLocalServer=async _=>{
       method: req.method,
       postData: Buffer.alloc(0),
     }
-    const {host}=url.parse(reqObj.url)
+    const {host, protocol}=url.parse(reqObj.url)
     deleteHeader(reqObj.headers, ['origin', 'host', 'accept-encoding'])
+    let cors_origin=''
+    if(reqObj.headers.referer) {
+      const {host, protocol}=url.parse(reqObj.headers.referer)
+      cors_origin=protocol+'//'+host
+    }
     reqObj.headers.Host=host
-    reqObj.headers.Origin=host
+    reqObj.headers.Origin=protocol+'//'+host
     req.on('data', buf=>reqObj.postData=Buffer.concat([reqObj.postData, buf]))
     req.on('end', async _=>{
       const {responseCode, responseHeaders, response}=await hookHandler(reqObj)
-      responseHeaders.map(({name, value})=>res.setHeader(name, value))
+      responseHeaders.concat([
+        {name: 'Access-Control-Allow-Credentials', value: 'true'},
+        {name: 'Access-Control-Allow-Origin', value: cors_origin || '*'},
+      ]).map(({name, value})=>res.setHeader(name, value))
       res.writeHead(responseCode, {})
       res.end(response)
     })

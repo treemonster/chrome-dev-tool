@@ -23,7 +23,6 @@ exports.url2response=({
   addResponseHeader,
   deleteResponseHeader,
   setStatusCode,
-  updateCORSHeaders,
   sleep,
 })=>{
   console.log({url, response})

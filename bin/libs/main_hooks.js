@@ -31,10 +31,6 @@ const do_hooks=async ({
     requestHeaders: headers,
     response: null,
     responseHeaders,
-    updateCORSHeaders: _=>Args.addResponseHeader({
-      'Access-Control-Allow-Credentials': 'true',
-      'Access-Control-Allow-Origin': headers.Origin||'*',
-    }),
     addResponseHeader: (key, value)=>{
       if(typeof key!=='string') for(let k in key) _addHeaders.push([k, key[k]])
       else _addHeaders.push([key, value])
@@ -56,7 +52,6 @@ const do_hooks=async ({
       })
       Args.setStatusCode(status)
       Args.addResponseHeader(responseHeaders)
-      Args.updateCORSHeaders()
       return response
     }
   }
