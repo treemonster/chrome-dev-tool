@@ -9,6 +9,7 @@ const {
   sleep, fetchUrl, getHeader, deleteHeader,
   requestPipe, update_header_key, headers2kvheaders,
   ERROR_TIMEOUT, ERROR_TIMEOUT_FETCH, ERROR_FAILED_FETCH,
+  sandboxTool, getPageUrl,
 }=require('./common')
 
 const do_hooks=async ({
@@ -160,10 +161,20 @@ exports.watchClient=async onClient=>{
       targetsHooked[targetId]=1
       const client=await CDP(Object.assign({target: targetId}, options))
       await onClient(client, page)
-      page.on('domcontentloaded', _=>{
-        const {sandboxScriptOnload}=get_apis()
-        if(!sandboxScriptOnload) return;
-        page.evaluate(sandboxScriptOnload).catch(console.log.bind(console))
+      let load_flag=''
+      page.on('domcontentloaded', async _=>{
+        load_flag=Math.random()
+        let _load_flag=load_flag
+        for(let _url=''; load_flag===_load_flag; ) {
+          try{await page.evaluate(_=>1)}catch(e){break}
+          await sleep(1e2)
+          const url=await getPageUrl(page)
+          if(!url || url===_url) continue
+          _url=url
+          const {runScriptOnUrlChange}=get_apis()
+          if(!runScriptOnUrlChange) return;
+          runScriptOnUrlChange(await sandboxTool(page))
+        }
       })
       page.reload()
     }

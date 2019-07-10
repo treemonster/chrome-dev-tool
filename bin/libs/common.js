@@ -223,5 +223,57 @@ exports.newLocalServer=async _=>{
   }
 }
 
+exports.getPageUrl=async page=>{
+  try{
+    return await page.evaluate(_=>location.href)
+  }catch(e) {}
+}
 
+exports.sandboxTool=async page=>{
+  const ret={page}
+  const {sleep, getPageUrl}=exports
+  ret.sleep=sleep
+  ret.url=await getPageUrl(page)
+  ret.$=async q=>{
+    for(;;) {
+      const f=await page.$(q)
+      if(f) return f
+      await sleep(1e2)
+    }
+  }
+  const _wrap=fn=>async q=>{
+    await ret.$(q)
+    await fn(q)
+  }
+  ret.focus=_wrap(async q=>{
+    await page.focus(q)
+  })
+  ret.click=_wrap(async q=>{
+    await page.evaluate(q=>{
+      document.querySelector(q).click()
+    }, q)
+  })
+  ret.hover=_wrap(async q=>{
+    await page.hover(q)
+  })
+
+  // https://github.com/GoogleChrome/puppeteer/blob/v1.18.1/lib/USKeyboardLayout.js
+  ret.keyboard={}
+  ret.keyboard.type=async str=>{
+    await page.keyboard.type(str)
+  }
+  ret.keyboard.ctrlBackspace=async _=>{
+    await page.keyboard.down('Control')
+    await page.keyboard.press('Backspace')
+    await page.keyboard.up('Control')
+  }
+  ret.keyboard.enter=async _=>{
+    await page.keyboard.press('Enter')
+  }
+
+  ret.evaluate=async (code, args)=>{
+    await page.evaluate(code, args)
+  }
+  return ret
+}
 

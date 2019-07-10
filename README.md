@@ -116,4 +116,4 @@ https://example.com
 ## 20190710更新
 
 0. 增加 --usr-data-dir 启动参数，指定浏览器数据保存位置
-0. 增加 sandboxScript 编程接口，该接口代码会在 domcontentloaded 事件触发之后被调用，直接运行于页面上下文
+0. 增加 runScriptOnUrlChange 编程接口，该接口代码会在 domcontentloaded 事件触发之后被调用，运行于node上下文

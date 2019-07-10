@@ -8,7 +8,7 @@ const url2response=({response})=>response
 const should_no_cache=_=>false
 const write_cache=false
 const network_timeout=DEFAULT_NETWORK_TIMEOUT
-const sandboxScriptOnload=null
+const runScriptOnUrlChange=null
 
 const aa=(a, b)=>a===undefined?b:a
 const ss=(a, b)=>async c=>(await aa(a,b)(c))||b(c)
@@ -24,6 +24,6 @@ module.exports=_=>{
     should_no_cache: aa(hooks.should_no_cache, should_no_cache),
     write_cache: aa(hooks.WRITE_CACHE, write_cache),
     network_timeout: aa(hooks.NETWORK_TIMEOUT, network_timeout),
-    sandboxScriptOnload: aa(hooks.sandboxScriptOnload, sandboxScriptOnload),
+    runScriptOnUrlChange: aa(hooks.runScriptOnUrlChange, runScriptOnUrlChange),
   }
 }

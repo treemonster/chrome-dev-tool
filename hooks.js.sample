@@ -36,7 +36,13 @@ exports.should_no_cache=({url})=>{
   if(url.match(/jsonp/)) return true
 }
 
-// 在 domcontentloaded 事件触发之后被调用，运行于页面上下文
-exports.sandboxScriptOnload=async _=>{
-  console.log(location.href)
+// 在 location.href 改变之后被调用（包括historyAPI，hashChange），运行于node上下文
+exports.runScriptOnUrlChange=async ({
+  url,
+  evaluate,
+  $, focus, click, hover, keyboard,
+  page, sleep,
+})=>{
+  console.log(url)
 }
+
