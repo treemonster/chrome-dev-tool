@@ -1,6 +1,7 @@
 const CDP = require('chrome-remote-interface')
 const puppeteer = require('puppeteer-core')
 const findChrome = require('chrome-finder')
+const path = require('path')
 
 const get_apis=require('./get_apis')
 const {
@@ -135,6 +136,7 @@ exports.watchClient=async onClient=>{
       '--enable-features=NetworkService,NetworkServiceInProcess',
       '--auto-open-devtools-for-tabs',
       '--no-first-run',
+      '--user-data-dir='+path.normalize(__dirname+'/../../browser-data'),
       'about:blank',
     ],
     executablePath: findChrome(),

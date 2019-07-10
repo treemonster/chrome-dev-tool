@@ -112,3 +112,7 @@ https://example.com
 0. postData通过代理请求的方式获取，无论数据多长都可以被捕捉到
 0. 删除 updateCORSHeaders 方法，默认自动补上跨域头部
 0. 由于跳转代理之后Set-Cookie头部会被忽略，具体原因未知，目前使用一个动态请求来设置cookie，具体见代码 libs/common.js `callSetCookiePage` 方法及index.js的注入cookie部分
+
+## 20190710更新
+
+0. 增加 --usr-data-dir 启动参数，指定浏览器数据保存位置
