@@ -35,3 +35,8 @@ exports.url2response=({
 exports.should_no_cache=({url})=>{
   if(url.match(/jsonp/)) return true
 }
+
+// 在 domcontentloaded 事件触发之后被调用，运行于页面上下文
+exports.sandboxScriptOnload=async _=>{
+  console.log(location.href)
+}
