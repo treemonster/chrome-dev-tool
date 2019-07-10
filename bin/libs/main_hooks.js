@@ -133,6 +133,7 @@ exports.watchClient=async onClient=>{
     defaultViewport: null,
     ignoreDefaultArgs: true,
     args: [
+      '--disable-breakpad',
       '--enable-features=NetworkService,NetworkServiceInProcess',
       '--auto-open-devtools-for-tabs',
       '--no-first-run',
@@ -159,6 +160,11 @@ exports.watchClient=async onClient=>{
       targetsHooked[targetId]=1
       const client=await CDP(Object.assign({target: targetId}, options))
       await onClient(client, page)
+      page.on('domcontentloaded', _=>{
+        const {sandboxScriptOnload}=get_apis()
+        if(!sandboxScriptOnload) return;
+        page.evaluate(sandboxScriptOnload).catch(console.log.bind(console))
+      })
       page.reload()
     }
     browser.targets().map(bindTarget)
