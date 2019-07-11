@@ -4,91 +4,8 @@ const findChrome = require('chrome-finder')
 const path = require('path')
 
 const get_apis=require('./get_apis')
-const {
-  NOTHING,
-  sleep, fetchUrl, getHeader, deleteHeader,
-  requestPipe, update_header_key, headers2kvheaders,
-  ERROR_TIMEOUT, ERROR_TIMEOUT_FETCH, ERROR_FAILED_FETCH,
-  sandboxTool, getPageUrl,
-}=require('./common')
-
-const do_hooks=async ({
-  // request
-  url, method, postData, headers,
-
-  // response
-  status, responseHeaders, response,
-
-  // apis
-  url2filename, url2response, should_no_cache, write_cache, network_timeout,
-})=>{
-  const result={
-    status,
-    response,
-    responseHeaders,
-  }
-  const _addHeaders={}
-  const Args={
-    url, method, postData,
-    requestHeaders: headers,
-    response: null,
-    responseHeaders,
-    addResponseHeader: (key, value)=>{
-      if(typeof key!=='string') for(let k in key) Args.addResponseHeader(k, key[k])
-      else if(Array.isArray(value)) value.map(v=>Args.addResponseHeader(key, v))
-      else {
-        _addHeaders[key]=_addHeaders[key]||[]
-        _addHeaders[key].push(value)
-      }
-    },
-    getResponseHeader: key=>getHeader(responseHeaders, key),
-    go302: (r_url)=>{
-      Args.addResponseHeader('Location', r_url)
-      result.status=302
-    },
-    deleteResponseHeader: key=>deleteHeader(responseHeaders, key),
-    sleep,
-    setStatusCode: (code=200)=>result.status=code,
-    getStatusCode: _=>result.status,
-    requestPipe: async ({requestOrigin, responseOrigin, timeout})=>{
-      const {status, responseHeaders, response}=await requestPipe({
-        url, method, postData, headers,
-        timeout: timeout || network_timeout,
-        requestOrigin, responseOrigin,
-      })
-      Args.setStatusCode(status)
-      Args.addResponseHeader(responseHeaders)
-      return response
-    }
-  }
-
-  let fn, cache
-  if(write_cache) {
-    fn=await url2filename(Args)
-    cache=readFileSync(fn)
-    if(cache && !should_no_cache(Args)) response=cache
-  }
-  Args.response=response
-  response=await url2response(Args)
-  result.response=response
-  if(status!==200 && (!response || !response.length)) return result
-  if(write_cache && Buffer.compare(
-    Buffer.from(cache||NOTHING),
-    Buffer.from(response))
-  ) writeFileSync(fn, response)
-
-  const a_responseHeaders={}
-  Args.addResponseHeader('Content-Length', result.response.length+'')
-  for(let key in _addHeaders) {
-    a_responseHeaders[update_header_key(key)]=_addHeaders[key]
-    Args.deleteResponseHeader(key)
-  }
-  for(let key in Args.responseHeaders) {
-    a_responseHeaders[update_header_key(key)]=Args.responseHeaders[key]
-  }
-  result.responseHeaders=a_responseHeaders
-  return result
-}
+const do_hooks=require('./do_hooks')
+const {sleep, getPageUrl, sandboxTool, deleteHeader, headers2kvheaders}=require('./common')
 
 exports.hookRequest=async request=>{
   const {url, method, postData, headers}=request
@@ -111,21 +28,12 @@ exports.hookRequest=async request=>{
     }
   }
 
-  try{
-    const fetchObj={
-      url, method, postData, headers,
-      timeout: hooks.network_timeout,
-    }
-    const hookObj=Object.assign(
-      fetchObj,
-      hooks,
-      await fetchUrl(fetchObj),
-    )
-    return resp(await do_hooks(hookObj))
-  }catch(e) {
-    if(e===ERROR_TIMEOUT) return resp(ERROR_TIMEOUT_FETCH)
-    else return resp(ERROR_FAILED_FETCH)
-  }
+  const fetchObj=Object.assign({
+    url, method, postData, headers,
+    timeout: hooks.network_timeout,
+  }, hooks)
+  return resp(await do_hooks(fetchObj))
+
 }
 
 exports.watchClient=async onClient=>{

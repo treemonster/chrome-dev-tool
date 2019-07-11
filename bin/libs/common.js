@@ -147,7 +147,6 @@ exports.requestPipe=async ({
   try{
     resolve(await exports.fetchUrl({url, method, postData, headers, timeout}))
   }catch(e) {
-    console.log(e)
     reject()
   }
 })
