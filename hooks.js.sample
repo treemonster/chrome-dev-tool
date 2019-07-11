@@ -6,33 +6,32 @@ exports.HOOKS_FILE='path/to/hooks.js'
 // 网络请求超时，默认10秒
 exports.NETWORK_TIMEOUT=10e3
 
-// 是否读写文件缓存，false时文件缓存无效
-// 不设置，默认false
-exports.WRITE_CACHE=true
-
-// 自定义url与缓存文件名的映射关系
-exports.url2filename=({url})=>{
-  return
-}
-
 // 根据当前请求的url和响应，选择性的修改响应结果
 exports.url2response=({
-  url, response, postData,
-  requestHeaders,
-  responseHeaders,
-  addResponseHeader,
-  deleteResponseHeader,
-  setStatusCode,
-  sleep,
+   url, method, postData, requestHeaders,
+
+   go302,
+   sleep,
+   requestPipe,
+
+   waitForResponse,
+   addResponseHeader,
+   getResponseHeader,
+   deleteResponseHeader,
+   setResponseType,
+   getResponse,
+   getStatusCode,
+   setStatusCode,
 })=>{
-  console.log({url, response})
+  await waitForResponse()
+  console.log({url, getResponse()})
   if(!url.match(/^https\:\/\/www.baidu.com\/$/)) return
   return `<h1>blocked by chrome-dev-tool</h1>`
 }
 
 // 是否需要缓存这个请求的结果
-// 如果return true，则即使文件内容里存在历史响应结果，也不会返回文件内容
-exports.should_no_cache=({url})=>{
+// return true 缓存写入默认文件名，return 文件名写入指定文件，return false不写入缓存
+exports.url2cachefile=({url})=>{
   if(url.match(/jsonp/)) return true
 }
 
