@@ -189,9 +189,9 @@ exports.newLocalServer=async _=>{
       postData: Buffer.alloc(0),
     }
     const {host, protocol}=url.parse(reqObj.url)
-    deleteHeader(reqObj.headers, ['origin', 'host', 'accept-encoding'])
+    deleteHeader(reqObj.headers, ['host', 'accept-encoding'])
     reqObj.headers.Host=host
-    reqObj.headers.Origin=protocol+'//'+host
+
     req.on('data', buf=>reqObj.postData=Buffer.concat([reqObj.postData, buf]))
     req.on('error', _=>{
       delete idMap[id]

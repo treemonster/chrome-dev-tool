@@ -121,5 +121,8 @@ https://example.com
 ## 20190711更新
 
 0. 增加 waitForResponse() 方法，调用之后 通过 getResponse() 和 getResponseHeader() 获得服务端输出数据
-
 0. 去掉 WRITE_CACHE 参数，去掉 url2filename，should_no_cache 接口，新增 url2cachefile接口，返回 字符串 的，缓存写入该字符串文件名，返回true的，根据默认url2cachefile规则写入文件缓存。返回 非真值，不写入缓存
+
+## 20190712更新
+
+0. 修复referer问题，禁用浏览器自带referer头部，转发请求补上referer，以防触发 network client blocked

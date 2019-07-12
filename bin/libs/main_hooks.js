@@ -11,19 +11,18 @@ exports.hookRequest=async request=>{
   const {url, method, postData, headers}=request
 
   const hooks=get_apis()
-  let cors_origin=''
-  if(headers.Referer) {
-    const {host, protocol}=require('url').parse(headers.Referer)
-    cors_origin=protocol+'//'+host
-  }
   const resp=({status, responseHeaders, response})=>{
-    deleteHeader(responseHeaders, ['Access-Control-Allow-Credentials', 'Access-Control-Allow-Origin'])
+    deleteHeader(responseHeaders, [
+      'Access-Control-Allow-Credentials',
+      'Access-Control-Allow-Origin',
+    ])
+    responseHeaders=headers2kvheaders(responseHeaders).concat([
+      {name: 'Access-Control-Allow-Credentials', value: 'true'},
+      {name: 'Access-Control-Allow-Origin', value: headers.Origin || '*'},
+    ])
     return {
       responseCode: status,
-      responseHeaders: headers2kvheaders(responseHeaders).concat([
-        {name: 'Access-Control-Allow-Credentials', value: 'true'},
-        {name: 'Access-Control-Allow-Origin', value: cors_origin || '*'},
-      ]),
+      responseHeaders,
       response: Buffer.from(response),
     }
   }
@@ -42,6 +41,7 @@ exports.watchClient=async onClient=>{
     defaultViewport: null,
     ignoreDefaultArgs: true,
     args: [
+      '--no-referrers',
       '--disable-breakpad',
       '--enable-features=NetworkService,NetworkServiceInProcess',
       '--auto-open-devtools-for-tabs',

@@ -18,6 +18,7 @@ watchClient(async (client, page)=>{
 
     // set-cookie 注入。经跳转的地址，直接 Set-Cookie 无效
     const id=url.replace(/^.*Do-Set-Cookie-requestId=(.+)$|^.*$/, '$1')
+
     if(id && id_map[id]) {
       Fetch.fulfillRequest({
         requestId,
@@ -32,6 +33,7 @@ watchClient(async (client, page)=>{
     // 跳转代理
     url=`http://127.0.0.1:${port}/?id=${requestId}`
     id_map[requestId]={request, page}
+    headers.Referer=page.url() // 浏览器自带referer头会触发client blocked，因此启动参数禁止referer，hook中补上
     Fetch.continueRequest({requestId, url})
 
   })
