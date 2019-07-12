@@ -154,12 +154,17 @@ exports.update_header_key=key=>{
   return key.replace(/(^|-)([a-z])/g, (_, a, b)=>a+b.toUpperCase())
 }
 
-const callSetCookiePage=(setCookies, url, idMap, id)=>{
+const callSetCookiePage=async (setCookies, url, idMap, id)=>{
   if(!setCookies || !setCookies.length) return false
   idMap[id].setCookies=setCookies
-  idMap[id].page.evaluate(({url, id})=>{
+  const page=await idMap[id].page.browser().newPage()
+  await page.goto(url+'&?Do-Set-Cookie-requestId='+id)
+  await page.close()
+  /*
+  .evaluate(({url, id})=>{
     (new Image).src=url+'&?Do-Set-Cookie-requestId='+id
   }, {url, id})
+  */
 }
 
 exports.ERROR_TIMEOUT_FETCH={
@@ -206,11 +211,10 @@ exports.newLocalServer=async _=>{
         return a
       }, {})
       for(let name in hs) res.setHeader(name, hs[name])
+      await callSetCookiePage(hs['Set-Cookie'], reqObj.url, idMap, id)
       res.writeHead(responseCode, {})
       res.end(response)
-      if(false===callSetCookiePage(hs['Set-Cookie'], reqObj.url, idMap, id)) {
-        delete idMap[id]
-      }
+      delete idMap[id]
     })
   }).listen(port)
   return {
