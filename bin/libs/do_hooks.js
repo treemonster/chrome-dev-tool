@@ -144,10 +144,7 @@ module.exports=async ({
     url, method, postData, headers,
     url2cachefile, network_timeout,
   })
-  let hooked_response=await url2response(Args), responseHeaders=Args.getAllResponseHeaders()
-  if((responseHeaders['Content-Type']+'').match(/^text\/html/i)) {
-    hooked_response=Buffer.from(hooked_response).toString('utf8').replace(/<head>/, '<head><meta name="referrer" content="unsafe-url">')
-  }
+  const hooked_response=await url2response(Args)
   Args.addResponseHeader('Content-Length', Buffer.from(hooked_response||'').length)
   return {
     status: Args.getStatusCode() || 200,
