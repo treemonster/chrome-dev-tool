@@ -41,6 +41,7 @@ exports.watchClient=async onClient=>{
     defaultViewport: null,
     ignoreDefaultArgs: true,
     args: [
+      '--disable-pnacl-crash-throttling',
       '--no-referrers',
       '--disable-breakpad',
       '--enable-features=NetworkService,NetworkServiceInProcess',
