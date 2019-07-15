@@ -110,7 +110,7 @@ exports.headers2kvheaders=headers=>{
   for(let key in headers) {
     let values=headers[key]
     ; (values.constructor===Array? values: [values]).map(value=>{
-      nh.push({name: exports.update_header_key(key), value})
+      nh.push({name: exports.update_header_key(key), value: value+''})
     })
   }
   return nh
@@ -154,12 +154,17 @@ exports.update_header_key=key=>{
   return key.replace(/(^|-)([a-z])/g, (_, a, b)=>a+b.toUpperCase())
 }
 
-const callSetCookiePage=(setCookies, url, idMap, id)=>{
+const callSetCookiePage=async (setCookies, url, idMap, id)=>{
   if(!setCookies || !setCookies.length) return false
   idMap[id].setCookies=setCookies
-  idMap[id].page.evaluate(({url, id})=>{
+  const page=await idMap[id].page.browser().newPage()
+  await page.goto(url+'&?Do-Set-Cookie-requestId='+id)
+  await page.close()
+  /*
+  .evaluate(({url, id})=>{
     (new Image).src=url+'&?Do-Set-Cookie-requestId='+id
   }, {url, id})
+  */
 }
 
 exports.ERROR_TIMEOUT_FETCH={
@@ -177,7 +182,7 @@ exports.DEFAULT_NETWORK_TIMEOUT=DEFAULT_NETWORK_TIMEOUT
 const getQuery=link=>querystring.parse(url.parse(link).query)
 exports.newLocalServer=async _=>{
   const port=await getPort()
-  const {deleteHeader, update_header_key}=exports
+  const {deleteHeader, update_header_key, headers2kvheaders}=exports
   let hookHandler=null, idMap=null
   require('http').createServer((req, res)=>{
     const id=decodeURIComponent(getQuery(req.url).id)
@@ -198,19 +203,29 @@ exports.newLocalServer=async _=>{
     })
     req.on('end', async _=>{
       const {responseCode, responseHeaders, response}=await hookHandler(reqObj)
-      const hs=responseHeaders.reduce((a, {name, value})=>{
+      const responseHeadersArray=headers2kvheaders(responseHeaders.reduce((a, {name, value})=>{
         name=update_header_key(name)
         if(!Array.isArray(value)) value=[value]
         if(!a[name]) a[name]=value
         else a[name]=a[name].concat(value)
         return a
-      }, {})
-      for(let name in hs) res.setHeader(name, hs[name])
-      res.writeHead(responseCode, {})
-      res.end(response)
-      if(false===callSetCookiePage(hs['Set-Cookie'], reqObj.url, idMap, id)) {
-        delete idMap[id]
+      }, {}))
+      idMap.resCaches[reqObj.url+'\n'+reqObj.method]={
+        responseCode,
+        response,
+        responseHeadersArray,
       }
+
+      let _url=page.target().url()
+      if(_url.indexOf(reqObj.url+'#')===0) reqObj.url=_url
+
+      // 307 保持请求方式和参数
+      res.writeHead(307, {
+        Location: reqObj.url,
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Allow-Origin': reqObj.headers.Origin||'*',
+      })
+      res.end()
     })
   }).listen(port)
   return {
@@ -233,6 +248,8 @@ exports.sandboxTool=async page=>{
   const {sleep, getPageUrl}=exports
   ret.sleep=sleep
   ret.url=await getPageUrl(page)
+  ret.evaluate=page.evaluate.bind(page)
+
   ret.$=async q=>{
     for(;;) {
       const f=await page.$(q)
@@ -244,15 +261,16 @@ exports.sandboxTool=async page=>{
     await ret.$(q)
     await fn(q)
   }
-  ret.focus=_wrap(async q=>{
+  ret.mouse={}
+  ret.mouse.focus=_wrap(async q=>{
     await page.focus(q)
   })
-  ret.click=_wrap(async q=>{
+  ret.mouse.click=_wrap(async q=>{
     await page.evaluate(q=>{
       document.querySelector(q).click()
     }, q)
   })
-  ret.hover=_wrap(async q=>{
+  ret.mouse.hover=_wrap(async q=>{
     await page.hover(q)
   })
 
@@ -270,9 +288,6 @@ exports.sandboxTool=async page=>{
     await page.keyboard.press('Enter')
   }
 
-  ret.evaluate=async (code, args)=>{
-    await page.evaluate(code, args)
-  }
   return ret
 }
 
