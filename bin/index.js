@@ -2,7 +2,9 @@ process.on('uncaughtException', e=>console.log(e))
 
 const {hookRequest, watchClient}=require('./libs/main_hooks')
 const localServer=require('./libs/common').newLocalServer()
-const id_map={}
+const id_map={
+  resCaches: {},
+}
 
 watchClient(async (client, page)=>{
   const {Fetch}=client
@@ -11,22 +13,23 @@ watchClient(async (client, page)=>{
   bindHookHandler(hookRequest, id_map)
   await Promise.all([Fetch.enable({patterns})])
   Fetch.requestPaused(async ({requestId, request})=>{
-    let {url, headers}=request
+    let {url, method, headers}=request
 
     // 非 http/https 开头的链接不需要处理
     if(!url.match(/^https*\:\/\//)) return Fetch.continueRequest({requestId})
 
-    // set-cookie 注入。经跳转的地址，直接 Set-Cookie 无效
-    const id=url.replace(/^.*Do-Set-Cookie-requestId=(.+)$|^.*$/, '$1')
-
-    if(id && id_map[id]) return Fetch.fulfillRequest({
-      requestId,
-      responseCode: 200,
-      responseHeaders: [
-        {name: 'Content-Type', value: 'text/plain'},
-      ].concat(id_map[id].setCookies.map(value=>({name: 'Set-Cookie', value}))),
-      body: "",
-    })
+    const key=url+'\n'+method
+    if(id_map.resCaches[key]) {
+      const {responseCode, response, responseHeadersArray}=id_map.resCaches[key]
+      Fetch.fulfillRequest({
+        requestId,
+        responseCode,
+        responseHeaders: responseHeadersArray,
+        body: Buffer.from(response).toString('base64'),
+      })
+      delete id_map.resCaches[key]
+      return
+    }
 
     // 跳转代理
     url=`http://127.0.0.1:${port}/?id=${requestId}`

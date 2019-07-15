@@ -110,7 +110,7 @@ exports.headers2kvheaders=headers=>{
   for(let key in headers) {
     let values=headers[key]
     ; (values.constructor===Array? values: [values]).map(value=>{
-      nh.push({name: exports.update_header_key(key), value})
+      nh.push({name: exports.update_header_key(key), value: value+''})
     })
   }
   return nh
@@ -182,7 +182,7 @@ exports.DEFAULT_NETWORK_TIMEOUT=DEFAULT_NETWORK_TIMEOUT
 const getQuery=link=>querystring.parse(url.parse(link).query)
 exports.newLocalServer=async _=>{
   const port=await getPort()
-  const {deleteHeader, update_header_key}=exports
+  const {deleteHeader, update_header_key, headers2kvheaders}=exports
   let hookHandler=null, idMap=null
   require('http').createServer((req, res)=>{
     const id=decodeURIComponent(getQuery(req.url).id)
@@ -203,18 +203,25 @@ exports.newLocalServer=async _=>{
     })
     req.on('end', async _=>{
       const {responseCode, responseHeaders, response}=await hookHandler(reqObj)
-      const hs=responseHeaders.reduce((a, {name, value})=>{
+      const responseHeadersArray=headers2kvheaders(responseHeaders.reduce((a, {name, value})=>{
         name=update_header_key(name)
         if(!Array.isArray(value)) value=[value]
         if(!a[name]) a[name]=value
         else a[name]=a[name].concat(value)
         return a
-      }, {})
-      for(let name in hs) res.setHeader(name, hs[name])
-      await callSetCookiePage(hs['Set-Cookie'], reqObj.url, idMap, id)
-      res.writeHead(responseCode, {})
-      res.end(response)
-      delete idMap[id]
+      }, {}))
+      idMap.resCaches[reqObj.url+'\n'+reqObj.method]={
+        responseCode,
+        response,
+        responseHeadersArray,
+      }
+      // 307 保持请求方式和参数
+      res.writeHead(307, {
+        Location: reqObj.url,
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Allow-Origin': reqObj.headers.Origin||'*',
+      })
+      res.end()
     })
   }).listen(port)
   return {
