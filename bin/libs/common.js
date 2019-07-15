@@ -215,6 +215,10 @@ exports.newLocalServer=async _=>{
         response,
         responseHeadersArray,
       }
+
+      let _url=page.target().url()
+      if(_url.indexOf(reqObj.url+'#')===0) reqObj.url=_url
+
       // 307 保持请求方式和参数
       res.writeHead(307, {
         Location: reqObj.url,
