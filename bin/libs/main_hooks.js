@@ -85,7 +85,8 @@ exports.watchClient=async onClient=>{
           runScriptOnUrlChange(await sandboxTool(page))
         }
       })
-      page.reload()
+      // 页面脚本刷新，cdp刷新会有问题
+      page.evaluate(_=>location.replace(location.href))
     }
     browser.targets().map(bindTarget)
     ; ['targetcreated', 'targetchanged'].map(t=>browser.on(t, bindTarget))
