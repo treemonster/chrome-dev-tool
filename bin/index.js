@@ -12,7 +12,7 @@ watchClient(async (client, page)=>{
   const {bindHookHandler, port}=await localServer
   bindHookHandler(hookRequest, id_map)
   await Promise.all([Fetch.enable({patterns})])
-  Fetch.requestPaused(async ({requestId, request})=>{
+  Fetch.requestPaused(async ({requestId, frameId, request})=>{
     let {url, method, headers}=request
 
     // 非 http/https 开头的链接不需要处理
@@ -34,7 +34,7 @@ watchClient(async (client, page)=>{
     // 跳转代理
     url=`http://127.0.0.1:${port}/?id=${requestId}`
     id_map[requestId]={request, page}
-    headers.Referer=page.target().url() // 浏览器自带referer头会触发client blocked，因此启动参数禁止referer，hook中补上
+    headers.Referer=page.frames().find(a=>a._id===frameId).url() // 浏览器自带referer头会触发client blocked，因此启动参数禁止referer，hook中补上
     Fetch.continueRequest({requestId, url})
 
   })
