@@ -202,30 +202,34 @@ exports.newLocalServer=async _=>{
       delete idMap[id]
     })
     req.on('end', async _=>{
+      delete idMap[id]
       const {responseCode, responseHeaders, response}=await hookHandler(reqObj)
-      const responseHeadersArray=headers2kvheaders(responseHeaders.reduce((a, {name, value})=>{
+      const responseHeadersNode=responseHeaders.reduce((a, {name, value})=>{
         name=update_header_key(name)
         if(!Array.isArray(value)) value=[value]
         if(!a[name]) a[name]=value
         else a[name]=a[name].concat(value)
         return a
-      }, {}))
-      idMap.resCaches[reqObj.url+'\n'+reqObj.method]={
-        responseCode,
-        response,
-        responseHeadersArray,
+      }, {})
+      const responseHeadersArray=headers2kvheaders(responseHeadersNode)
+      if(reqObj.method.match(/GET|POST/i)) {
+        idMap.resCaches[reqObj.url+'\n'+reqObj.method]={
+          responseCode,
+          response,
+          responseHeadersArray,
+        }
+        // 307 保持请求方式和参数
+        res.writeHead(307, {
+          Location: reqObj.url,
+          'Access-Control-Allow-Credentials': 'true',
+          'Access-Control-Allow-Origin': reqObj.headers.Origin||'*',
+        })
+        res.end()
+      }else{
+        res.writeHead(responseCode, responseHeadersNode)
+        res.end(response)
       }
 
-      let _url=page.target().url()
-      if(_url.indexOf(reqObj.url+'#')===0) reqObj.url=_url
-
-      // 307 保持请求方式和参数
-      res.writeHead(307, {
-        Location: reqObj.url,
-        'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Allow-Origin': reqObj.headers.Origin||'*',
-      })
-      res.end()
     })
   }).listen(port)
   return {
