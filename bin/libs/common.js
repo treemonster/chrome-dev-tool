@@ -248,6 +248,8 @@ exports.sandboxTool=async page=>{
   const {sleep, getPageUrl}=exports
   ret.sleep=sleep
   ret.url=await getPageUrl(page)
+  ret.evaluate=page.evaluate.bind(page)
+
   ret.$=async q=>{
     for(;;) {
       const f=await page.$(q)
@@ -259,15 +261,16 @@ exports.sandboxTool=async page=>{
     await ret.$(q)
     await fn(q)
   }
-  ret.focus=_wrap(async q=>{
+  ret.mouse={}
+  ret.mouse.focus=_wrap(async q=>{
     await page.focus(q)
   })
-  ret.click=_wrap(async q=>{
+  ret.mouse.click=_wrap(async q=>{
     await page.evaluate(q=>{
       document.querySelector(q).click()
     }, q)
   })
-  ret.hover=_wrap(async q=>{
+  ret.mouse.hover=_wrap(async q=>{
     await page.hover(q)
   })
 
@@ -285,9 +288,6 @@ exports.sandboxTool=async page=>{
     await page.keyboard.press('Enter')
   }
 
-  ret.evaluate=async (code, args)=>{
-    await page.evaluate(code, args)
-  }
   return ret
 }
 

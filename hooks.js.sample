@@ -38,10 +38,12 @@ exports.url2cachefile=({url})=>{
 // 在 location.href 改变之后被调用（包括historyAPI，hashChange），运行于node上下文
 exports.runScriptOnUrlChange=async ({
   url,
-  evaluate,
-  $, focus, click, hover, keyboard,
-  page, sleep,
+  page,
+  $, mouse, keyboard,
+  sleep, evaluate,
 })=>{
+  const {focus, click, hover}=mouse
+  const {ctrlBackspace, type, enter}=keyboard
   console.log(url)
 }
 
