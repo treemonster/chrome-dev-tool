@@ -36,7 +36,8 @@ watchClient(async (client, page)=>{
     // 代理处理完成后307跳转原始请求地址
     url=`http://127.0.0.1:${port}/?id=${requestId}`
     id_map[requestId]={request, page}
-    headers.Referer=page.frames().find(a=>a._id===frameId).url() // 浏览器自带referer头会触发client blocked，因此启动参数禁止referer，hook中补上
+    const a=page.frames().find(a=>a._id===frameId)
+    if(a) headers.Referer=a.url() // 浏览器自带referer头会触发client blocked，因此启动参数禁止referer，hook中补上
     Fetch.continueRequest({requestId, url})
 
   })

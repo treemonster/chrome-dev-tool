@@ -145,7 +145,8 @@ module.exports=async ({
     url2cachefile, network_timeout,
   })
   const hooked_response=await url2response(Args)
-  Args.addResponseHeader('Content-Length', Buffer.from(hooked_response||'').length)
+  const len=Buffer.from(hooked_response||'').length
+  len>0 && Args.addResponseHeader('Content-Length', len)
   return {
     status: Args.getStatusCode() || 200,
     responseHeaders: Args.getAllResponseHeaders(),
