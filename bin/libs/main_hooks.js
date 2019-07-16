@@ -48,7 +48,6 @@ exports.watchClient=async onClient=>{
       '--auto-open-devtools-for-tabs',
       '--no-first-run',
       '--user-data-dir='+path.normalize(__dirname+'/../../browser-data'),
-      'about:blank',
     ],
     executablePath: findChrome(),
   }).then(async browser => {
@@ -76,17 +75,17 @@ exports.watchClient=async onClient=>{
         let _load_flag=load_flag
         for(let _url=''; load_flag===_load_flag; ) {
           try{await page.evaluate(_=>1)}catch(e){break}
-          await sleep(1e2)
+          await sleep(50)
           const url=await getPageUrl(page)
           if(!url || url===_url) continue
-          _url=url
+          page.__DEV_URL__=_url=url
           const {runScriptOnUrlChange}=get_apis()
           if(!runScriptOnUrlChange) return;
           runScriptOnUrlChange(await sandboxTool(page))
         }
       })
-      // 页面脚本刷新，cdp刷新会有问题
-      page.evaluate(_=>location.replace(location.href))
+      for(;!page.__DEV_URL__;) await sleep(1e2)
+      page.reload()
     }
     browser.targets().map(bindTarget)
     ; ['targetcreated', 'targetchanged'].map(t=>browser.on(t, bindTarget))

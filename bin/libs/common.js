@@ -70,6 +70,7 @@ exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resol
   method=method||'GET'
   headers=headers||{}
   if(postData) headers['Content-Length']=Buffer.byteLength(postData)
+  exports.deleteHeader(headers, 'If-None-Match')
   const req=http.request({
     method, headers,
     hostname, port, path,
@@ -93,6 +94,7 @@ exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resol
         result.responseHeaders['Content-Type']='text/html;charset=utf-8'
         try{result.response=Buffer.from(iconv.decode(result.response, 'gbk'))}catch(e) {}
       }
+      exports.deleteHeader(result.responseHeaders, 'ETag')
       resolve(result)
       clearTimeout(tout)
     })
@@ -154,19 +156,6 @@ exports.update_header_key=key=>{
   return key.replace(/(^|-)([a-z])/g, (_, a, b)=>a+b.toUpperCase())
 }
 
-const callSetCookiePage=async (setCookies, url, idMap, id)=>{
-  if(!setCookies || !setCookies.length) return false
-  idMap[id].setCookies=setCookies
-  const page=await idMap[id].page.browser().newPage()
-  await page.goto(url+'&?Do-Set-Cookie-requestId='+id)
-  await page.close()
-  /*
-  .evaluate(({url, id})=>{
-    (new Image).src=url+'&?Do-Set-Cookie-requestId='+id
-  }, {url, id})
-  */
-}
-
 exports.ERROR_TIMEOUT_FETCH={
   status: 503,
   responseHeaders: {'Chrome-Dev-Tool': 'Fetch-Timeout'},
@@ -218,6 +207,9 @@ exports.newLocalServer=async _=>{
           response,
           responseHeadersArray,
         }
+        let _url=page.__DEV_URL__
+        if((_url||'').indexOf(reqObj.url+'#')===0) reqObj.url=_url
+
         // 307 保持请求方式和参数
         res.writeHead(307, {
           Location: reqObj.url,
