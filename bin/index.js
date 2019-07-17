@@ -12,11 +12,16 @@ watchClient(async (client, page)=>{
   const {bindHookHandler, port}=await localServer
   bindHookHandler(hookRequest, id_map)
   await Promise.all([Fetch.enable({patterns})])
+
+  ; ['continueRequest', 'fulfillRequest'].map(f=>{
+    Fetch['_'+f]=a=>Fetch[f](a).catch(_=>0)
+  })
+
   Fetch.requestPaused(async ({requestId, frameId, request})=>{
     let {url, method, headers, postData}=request
 
     // 非 http/https 开头的链接不需要处理
-    if(!url.match(/^https*\:\/\//)) return Fetch.continueRequest({requestId})
+    if(!url.match(/^https*\:\/\//)) return Fetch._continueRequest({requestId})
 
     // 浏览器自带referer头会触发client blocked，因此启动参数禁止referer，hook中补上
     const a=page.frames().find(a=>a._id===frameId)
@@ -38,7 +43,7 @@ watchClient(async (client, page)=>{
 
     if(result) {
       const {status, response, responseHeadersArray}=result
-      return Fetch.fulfillRequest({
+      return Fetch._fulfillRequest({
         requestId,
         responseCode: status,
         responseHeaders: responseHeadersArray,
@@ -47,7 +52,7 @@ watchClient(async (client, page)=>{
     }else{
       url=`http://127.0.0.1:${port}/?id=${requestId}`
       id_map[requestId]={request, page}
-      Fetch.continueRequest({requestId, url})
+      Fetch._continueRequest({requestId, url})
     }
 
   })

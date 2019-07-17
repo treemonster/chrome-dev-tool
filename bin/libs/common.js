@@ -130,6 +130,10 @@ exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resol
       clearTimeout(tout)
     })
   })
+  req.on('error', e=>{
+    reject(e)
+    clearTimeout(tout)
+  })
   if(postData) req.write(postData)
   req.end()
 })
