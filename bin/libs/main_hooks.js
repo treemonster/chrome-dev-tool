@@ -9,30 +9,12 @@ const {sleep, getPageUrl, sandboxTool, deleteHeader, headers2kvheaders}=require(
 
 exports.hookRequest=async request=>{
   const {url, method, postData, headers}=request
-
   const hooks=get_apis()
-  const resp=({status, responseHeaders, response})=>{
-    deleteHeader(responseHeaders, [
-      'Access-Control-Allow-Credentials',
-      'Access-Control-Allow-Origin',
-    ])
-    responseHeaders=headers2kvheaders(responseHeaders).concat([
-      {name: 'Access-Control-Allow-Credentials', value: 'true'},
-      {name: 'Access-Control-Allow-Origin', value: headers.Origin || '*'},
-    ])
-    return {
-      responseCode: status,
-      responseHeaders,
-      response: Buffer.from(response),
-    }
-  }
-
   const fetchObj=Object.assign({
     url, method, postData, headers,
     timeout: hooks.network_timeout,
   }, hooks)
-  return resp(await do_hooks(fetchObj))
-
+  return await do_hooks(fetchObj)
 }
 
 exports.watchClient=async onClient=>{
