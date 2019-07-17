@@ -4,6 +4,7 @@ const {
   requestPipe, update_header_key,
   ERROR_TIMEOUT, ERROR_TIMEOUT_FETCH, ERROR_FAILED_FETCH,
   readFileSync, writeFileSync,
+  updateResultResponseHeaders,
 }=require('./common')
 
 /**
@@ -147,9 +148,11 @@ module.exports=async ({
   const hooked_response=await url2response(Args)
   const len=Buffer.from(hooked_response||'').length
   len>0 && Args.addResponseHeader('Content-Length', len)
-  return {
+  const result={
     status: Args.getStatusCode() || 200,
     responseHeaders: Args.getAllResponseHeaders(),
     response: hooked_response,
   }
+  updateResultResponseHeaders(result, headers)
+  return result
 }
