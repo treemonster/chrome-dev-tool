@@ -5,6 +5,11 @@ const iconv=require('iconv-lite')
 const getPort = require('get-port')
 const url=require('url')
 const querystring=require('querystring')
+const {
+  deleteHeader, getHeader, replaceHeader,
+  fetchUrl,
+  NETWORK_TIMEOUT_ERROR,
+}=require('cwg-fetch')
 
 exports.writeFileSync=function(fn, str) {
   path.normalize(fn+'/../').split(path.sep).reduce((a, b)=>{
@@ -45,16 +50,11 @@ exports.requireFile=fn=>{
     console.log('Failed to load '+abs_fn+': ', e)
   }
 }
-const DEFAULT_NETWORK_TIMEOUT=10e3
-const error_timeout=new Error('timeout')
+
 exports.updateResultResponseHeaders=(result, headers)=>{
-  const {deleteHeader, update_header_key, headers2kvheaders}=exports
-  deleteHeader(result.responseHeaders, [
-    'Access-Control-Allow-Credentials',
-    'Access-Control-Allow-Origin',
-  ])
-  result.responseHeaders['Access-Control-Allow-Credentials']='true'
-  result.responseHeaders['Access-Control-Allow-Origin']=headers.Origin||'*'
+  const {update_header_key, headers2kvheaders}=exports
+  replaceHeader(result.responseHeaders, 'Access-Control-Allow-Credentials', 'true')
+  replaceHeader(result.responseHeaders, 'Access-Control-Allow-Origin', headers.Origin||'*')
 
   const responseHeadersNode=headers2kvheaders(result.responseHeaders).reduce((a, {name, value})=>{
     name=update_header_key(name)
@@ -76,67 +76,19 @@ exports.updateResultResponseHeaders=(result, headers)=>{
 })
  failed: reject(Error)
  */
-exports.fetchUrl=({url, method, postData, headers, timeout})=>new Promise((resolve, reject)=>{
-  const u=require('url')
-  const {update_header_key, headers2kvheaders, deleteHeader, getHeader, updateResultResponseHeaders}=exports
-  let {protocol, hostname, port, path}=u.parse(url)
-  let tout=null, update_tout=_=>{
-    clearTimeout(tout)
-    tout=setTimeout(_=>reject(error_timeout), timeout||DEFAULT_NETWORK_TIMEOUT)
+exports.fetchUrl=async ({url, method, postData, headers, timeout})=>{
+  timeout=timeout || exports.DEFAULT_NETWORK_TIMEOUT
+  const result=await fetchUrl({url, method, postData, headers, timeout})
+  const content_type=getHeader(result.responseHeaders, 'Content-Type')
+  const html=result.response.slice(0, 2000).toString('utf-8')
+  if(content_type.match(/charset.*?gb/i) || html.match(/meta.*?Content-Type.*?gb/i)) {
+    replaceHeader(result.responseHeaders, 'Content-Type', 'text/html;charset=utf-8')
+    try{result.response=Buffer.from(iconv.decode(result.response, 'gbk'))}catch(e) {}
   }
-  update_tout()
-  let http
-  if(protocol==='http:') {
-    http=require('http')
-    port=port||80
-  }else{
-    http=require('https')
-    port=port||443
-  }
-  method=method||'GET'
-  headers=headers||{}
-  if(postData) headers['Content-Length']=Buffer.byteLength(postData)
-  deleteHeader(headers, 'If-None-Match')
-  const req=http.request({
-    method, headers,
-    hostname, port, path,
-    timeout,
-  }, res=>{
-    const result={
-      status: res.statusCode,
-      responseHeaders: res.headers,
-      response: Buffer.alloc(0),
-    }
-    update_tout()
-    res.on('data', chunk=>{
-      update_tout()
-      result.response=Buffer.concat([result.response, chunk])
-    })
-    res.on('end', _=>{
-      const content_type=getHeader(result.responseHeaders, 'Content-Type')
-      const html=result.response.slice(0, 2000).toString('utf-8')
-      if(content_type.match(/charset.*?gb/i) || html.match(/meta.*?Content-Type.*?gb/i)) {
-        deleteHeader(result.responseHeaders, 'Content-Type')
-        result.responseHeaders['Content-Type']='text/html;charset=utf-8'
-        try{result.response=Buffer.from(iconv.decode(result.response, 'gbk'))}catch(e) {}
-      }
-      deleteHeader(result.responseHeaders, 'ETag')
-      updateResultResponseHeaders(result, headers)
-      resolve(result)
-      clearTimeout(tout)
-    })
-    res.on('error', e=>{
-      reject(e)
-      clearTimeout(tout)
-    })
-  })
-  req.on('error', e=>{
-    reject(e)
-    clearTimeout(tout)
-  })
-  if(postData) req.write(postData)
-  req.end()
-})
+  deleteHeader(result.responseHeaders, 'ETag')
+  exports.updateResultResponseHeaders(result, headers)
+  return result
+}
 
 exports.headers2kvheaders=headers=>{
   const nh=[]
@@ -149,23 +101,8 @@ exports.headers2kvheaders=headers=>{
   return nh
 }
 
-exports.getHeader=(Headers, key)=>{
-  for(let k in Headers) {
-    if(key.toLowerCase()!==k.toLowerCase()) continue
-    return Headers[k]
-  }
-  return ''
-}
-
-exports.deleteHeader=(Headers, key)=>{
-  if(Array.isArray(key)) return key.map(k=>{
-    exports.deleteHeader(Headers, k)
-  })
-  for(let k in Headers) {
-    if(key.toLowerCase()!==k.toLowerCase()) continue
-    delete Headers[k]
-  }
-}
+exports.getHeader=getHeader
+exports.deleteHeader=deleteHeader
 
 exports.requestPipe=async ({
   url, method, postData, headers, timeout,
@@ -197,12 +134,12 @@ exports.ERROR_FAILED_FETCH={
   responseHeaders: {'Chrome-Dev-Tool': 'Fetch-Failed'},
   response: "",
 }
-exports.ERROR_TIMEOUT=error_timeout
-exports.DEFAULT_NETWORK_TIMEOUT=DEFAULT_NETWORK_TIMEOUT
+exports.ERROR_TIMEOUT=NETWORK_TIMEOUT_ERROR
+exports.DEFAULT_NETWORK_TIMEOUT=10e3
 const getQuery=link=>querystring.parse(url.parse(link).query)
 exports.newLocalServer=async _=>{
   const port=await getPort()
-  const {deleteHeader, update_header_key, headers2kvheaders}=exports
+  const {update_header_key, headers2kvheaders}=exports
   let hookHandler=null, idMap=null
   require('http').createServer((req, res)=>{
     const id=decodeURIComponent(getQuery(req.url).id)
@@ -214,9 +151,8 @@ exports.newLocalServer=async _=>{
       postData: Buffer.alloc(0),
     }
     const {host, protocol}=url.parse(reqObj.url)
-    deleteHeader(reqObj.headers, ['host', 'accept-encoding'])
-    reqObj.headers.Host=host
-
+    deleteHeader(reqObj.headers, 'accept-encoding')
+    replaceHeader(reqObj.headers, 'host', host)
     req.on('data', buf=>reqObj.postData=Buffer.concat([reqObj.postData, buf]))
     req.on('error', _=>{
       delete idMap[id]
