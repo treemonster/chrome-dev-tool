@@ -9,7 +9,7 @@ const {
   deleteHeader, getHeader, replaceHeader,
   fetchUrl,
   NETWORK_TIMEOUT_ERROR,
-}=require('../../../cwg-fetch')
+}=require('cwg-fetch')
 
 exports.writeFileSync=function(fn, str) {
   path.normalize(fn+'/../').split(path.sep).reduce((a, b)=>{
