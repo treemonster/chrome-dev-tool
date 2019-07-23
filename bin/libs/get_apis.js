@@ -16,7 +16,7 @@ const url2response=async ({
 }
 const network_timeout=DEFAULT_NETWORK_TIMEOUT
 const runScriptOnUrlChange=null
-// false 不使用代理，true 使用系统代理，{http: 'http://127.0.0.1:8080', ignore: /127\./} 用户自定义代理
+// false 不使用代理，true 使用系统代理，{src: 'http://127.0.0.1:8080', ignore: /127\./} 用户自定义代理
 const proxy=false
 
 const aa=(a, b)=>a===undefined?b:a
