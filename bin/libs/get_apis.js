@@ -16,6 +16,8 @@ const url2response=async ({
 }
 const network_timeout=DEFAULT_NETWORK_TIMEOUT
 const runScriptOnUrlChange=null
+// false 不使用代理，true 使用系统代理，{http: 'http://127.0.0.1:8080', ignore: /127\./} 用户自定义代理
+const proxy=false
 
 const aa=(a, b)=>a===undefined?b:a
 const ss=(a, b)=>async c=>(await aa(a,b)(c))||b(c)
@@ -31,5 +33,6 @@ module.exports=_=>{
     url2response: ss(hooks.url2response, url2response),
     network_timeout: aa(hooks.NETWORK_TIMEOUT, network_timeout),
     runScriptOnUrlChange: aa(hooks.runScriptOnUrlChange, runScriptOnUrlChange),
+    proxy: hooks.proxy || proxy,
   }
 }

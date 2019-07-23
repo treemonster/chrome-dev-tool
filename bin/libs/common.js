@@ -55,6 +55,8 @@ exports.updateResultResponseHeaders=(result, headers)=>{
   const {update_header_key, headers2kvheaders}=exports
   replaceHeader(result.responseHeaders, 'Access-Control-Allow-Credentials', 'true')
   replaceHeader(result.responseHeaders, 'Access-Control-Allow-Origin', headers.Origin||'*')
+  replaceHeader(result.responseHeaders, 'Access-Control-Allow-Method', '*')
+  replaceHeader(result.responseHeaders, 'Access-Control-Allow-Headers', '*')
 
   const responseHeadersNode=headers2kvheaders(result.responseHeaders).reduce((a, {name, value})=>{
     name=update_header_key(name)
@@ -77,8 +79,9 @@ exports.updateResultResponseHeaders=(result, headers)=>{
  failed: reject(Error)
  */
 exports.fetchUrl=async ({url, method, postData, headers, timeout})=>{
+  const {proxy}=require('./get_apis')()
   timeout=timeout || exports.DEFAULT_NETWORK_TIMEOUT
-  const result=await fetchUrl({url, method, postData, headers, timeout})
+  const result=await fetchUrl({url, method, postData, headers, timeout, proxySettings: proxy})
   const content_type=getHeader(result.responseHeaders, 'Content-Type')
   const html=result.response.slice(0, 2000).toString('utf-8')
   if(content_type.match(/charset.*?gb/i) || html.match(/meta.*?Content-Type.*?gb/i)) {
@@ -174,6 +177,8 @@ exports.newLocalServer=async _=>{
           Location: reqObj.url,
           'Access-Control-Allow-Credentials': 'true',
           'Access-Control-Allow-Origin': reqObj.headers.Origin||'*',
+          'Access-Control-Allow-Method': '*',
+          'Access-Control-Allow-Headers': '*',
         })
         res.end()
       }else{
