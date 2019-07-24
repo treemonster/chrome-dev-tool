@@ -46,6 +46,7 @@ exports.watchClient=async (onClient, headless, hooks_js)=>{
   // 目前我所使用的reload方式，仅仅让新页面在和cdp建立连接之后重新载入，但在reload之前所发出的请求已确实被后台所记录了
   // 所以这个方式治标不治本，在特定情况下会引入其他错误。例如页面打开之后调用了统计访问次数的接口，那么这个接口就有可能被调用两次
 
+  const defaultUserAgent=await browser.userAgent()
   const bindTarget=async target=>{
     const page=await target.page()
     if(!page) return
@@ -64,12 +65,15 @@ exports.watchClient=async (onClient, headless, hooks_js)=>{
         const url=await getPageUrl(page)
         if(!url || url===_url) continue
         page.__DEV_URL__=_url=url
-        const {runScriptOnUrlChange}=get_apis()
+        const {runScriptOnUrlChange, useragent}=get_apis()
+        await page.setUserAgent(useragent || defaultUserAgent)
         if(!runScriptOnUrlChange) return;
         runScriptOnUrlChange(await sandboxTool(page))
       }
     })
     for(;!page.__DEV_URL__;) await sleep(1e2)
+    const {useragent}=get_apis()
+    await page.setUserAgent(useragent || defaultUserAgent)
     page.reload()
   }
   browser.targets().map(bindTarget)

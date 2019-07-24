@@ -138,3 +138,5 @@ https://example.com
 ## 20190724更新
 
 0. 增加代码注入式编程接口，开发爬虫类工具更方便。见 test-inject-tool.js
+
+0. 增加useragent参数，可以动态修改浏览器页面的useragent
