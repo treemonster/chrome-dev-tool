@@ -83,8 +83,8 @@ exports.fetchUrl=async ({url, method, postData, headers, timeout})=>{
   timeout=timeout || exports.DEFAULT_NETWORK_TIMEOUT
   const result=await fetchUrl({url, method, postData, headers, timeout, proxySettings: proxy})
   const content_type=getHeader(result.responseHeaders, 'Content-Type')
-  const html=result.response.slice(0, 2000).toString('utf-8')
-  if(content_type.match(/charset.*?gb/i) || html.match(/meta.*?Content-Type.*?gb/i)) {
+  const html=Buffer.from(result.response.slice(0, 2000)).toString('utf-8')
+  if(content_type.match(/charset.*?gb/i) || html.match(/meta.*?Content-Type[^>]*gb/i)) {
     replaceHeader(result.responseHeaders, 'Content-Type', 'text/html;charset=utf-8')
     try{result.response=Buffer.from(iconv.decode(result.response, 'gbk'))}catch(e) {}
   }
