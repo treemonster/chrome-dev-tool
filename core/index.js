@@ -78,12 +78,12 @@ exports.openAutotask=headless=>{
     }
   }}
   const browser=newBrowser(headless, HOOKS_JS_INJECT)
-  return async asyncFunc=>{
+  const run=async asyncFunc=>{
     const _browser=await browser
     const page=await _browser.newPage()
     const pageId=page._target._targetId
     url2response_list[pageId]=null
-    asyncFunc({
+    return new Promise(r=>asyncFunc({
       hook: fn=>url2response_list[pageId]=fn,
       goto: async url=>{
         await page.goto(url)
@@ -93,7 +93,10 @@ exports.openAutotask=headless=>{
       end: async _=>{
         delete url2response_list[pageId]
         await page.close()
+        r()
       },
-    })
+    }))
   }
+  const destroy=async _=>(await browser).close()
+  return {run, destroy}
 }
