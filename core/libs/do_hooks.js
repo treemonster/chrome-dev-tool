@@ -30,12 +30,17 @@ const {
    getStatusCode(),
    setStatusCode(),
 
+   // 页面唯一标识
+   pageId,
+
  }
  */
 const makeArgs=({
   url, method, postData, headers,
 
   url2cachefile, network_timeout,
+
+  pageId,
 })=>{
   const result={
     status: 0,
@@ -50,6 +55,8 @@ const makeArgs=({
     requestHeaders: headers,
 
     sleep,
+
+    pageId,
 
   }
 
@@ -140,10 +147,11 @@ module.exports=async ({
 
   // apis
   url2cachefile, url2response, network_timeout,
-})=>{
+}, pageId)=>{
   const Args=makeArgs({
     url, method, postData, headers,
     url2cachefile, network_timeout,
+    pageId,
   })
   const hooked_response=await url2response(Args)
   const len=Buffer.from(hooked_response||'').length

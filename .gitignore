@@ -5,4 +5,5 @@ hooks.js
 _*
 *.hooks.js
 .DS_*
+test.js
 

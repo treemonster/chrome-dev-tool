@@ -1,1 +1,1 @@
-require('./core')()
+require(__dirname+'/../core').openDebugger()

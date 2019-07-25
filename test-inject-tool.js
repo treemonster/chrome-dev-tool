@@ -1,15 +1,23 @@
-const core=require('./bin/core')
-// true表示打开一个headless chrome
-// 第二个参数为hooks.js的内容
-core(true, {
-  url2cachefile: ({url})=>{
-  	console.log("##", url)
-    if(url.match(/nodejs\.cn\//)) return __dirname+'/nodejs.cn.html'
-  }
-}).then(async browser=>{
-  // 获取browser实例
-  const page=await browser.newPage()
-  page.goto('http://nodejs.cn')
-  await new Promise(r=>setTimeout(r, 3e3))
-  browser.close()
+const ptask=require('./core').openAutotask(false)
+console.log(ptask)
+ptask(async ({hook, goto, evaluate, end})=>{
+  hook(({url})=>{
+    console.log('#baidu', url)
+  })
+  await goto('https://baidu.com')
+  console.log(await evaluate(async _=>{
+    return new Promise(r=>setTimeout(_=>r('baidu####'), 3e3))
+  }))
+  end()
+})
+
+ptask(async ({hook, goto, evaluate, end})=>{
+  hook(({url})=>{
+    console.log('#nodejs', url)
+  })
+  await goto('http://nodejs.cn')
+  console.log(await evaluate(async _=>{
+    return new Promise(r=>setTimeout(_=>r('nodejs####'), 3e3))
+  }))
+  end()
 })

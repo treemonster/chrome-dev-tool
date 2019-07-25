@@ -7,14 +7,14 @@ const get_apis=require('./get_apis')
 const do_hooks=require('./do_hooks')
 const {sleep, getPageUrl, sandboxTool, deleteHeader, headers2kvheaders}=require('./common')
 
-exports.hookRequest=async request=>{
+exports.hookRequest=async (request, pageId)=>{
   const {url, method, postData, headers}=request
   const hooks=get_apis()
   const fetchObj=Object.assign({
     url, method, postData, headers,
     timeout: hooks.network_timeout,
   }, hooks)
-  return await do_hooks(fetchObj)
+  return await do_hooks(fetchObj, pageId)
 }
 
 exports.watchClient=async (onClient, headless, hooks_js)=>{
@@ -74,7 +74,8 @@ exports.watchClient=async (onClient, headless, hooks_js)=>{
     for(;!page.__DEV_URL__;) await sleep(1e2)
     const {useragent}=get_apis()
     await page.setUserAgent(useragent || defaultUserAgent)
-    page.reload()
+    await page.reload()
+    page.__BINDED__=true
   }
   browser.targets().map(bindTarget)
   ; ['targetcreated', 'targetchanged'].map(t=>browser.on(t, bindTarget))

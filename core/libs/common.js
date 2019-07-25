@@ -162,7 +162,7 @@ exports.newLocalServer=async _=>{
     })
     req.on('end', async _=>{
       delete idMap[id]
-      const {status, responseHeadersArray, responseHeadersNode, response}=await hookHandler(reqObj)
+      const {status, responseHeadersArray, responseHeadersNode, response}=await hookHandler(reqObj, page._target._targetId)
       if(reqObj.method.match(/GET|POST/i)) {
         idMap.resCaches[reqObj.url+'\n'+reqObj.method]={
           status,

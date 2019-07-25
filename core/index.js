@@ -1,12 +1,13 @@
 process.on('uncaughtException', e=>console.log(e))
 
 const {hookRequest, watchClient}=require('./libs/main_hooks')
-const localServer=require('./libs/common').newLocalServer()
+const {sleep, newLocalServer}=require('./libs/common')
+const localServer=newLocalServer()
 const id_map={
   resCaches: {},
 }
 
-module.exports=(headless, hooks_js_inject)=>watchClient(async (client, page)=>{
+const newBrowser=(headless, hooks_js_inject)=>watchClient(async (client, page)=>{
   const {Fetch}=client
   const patterns=[/^https*\:\/\//ig]
   const {bindHookHandler, port}=await localServer
@@ -38,7 +39,7 @@ module.exports=(headless, hooks_js_inject)=>watchClient(async (client, page)=>{
       result=id_map.resCaches[KEY]
       delete id_map.resCaches[KEY]
     }else if(method==='GET' || postData) {
-      result=await hookRequest(request)
+      result=await hookRequest(request, page._target._targetId)
     }
 
     if(result) {
@@ -62,3 +63,37 @@ module.exports=(headless, hooks_js_inject)=>watchClient(async (client, page)=>{
 // https://github.com/cyrus-and/chrome-remote-interface
 // https://github.com/GoogleChrome/puppeteer
 
+
+// 启动调试模式的chrome，用于开发
+exports.openDebugger=_=>newBrowser()
+
+// 封装代码控制的隐藏chrome，用于执行自动化任务
+exports.openAutotask=headless=>{
+  const url2response_list={}
+  const HOOKS_JS_INJECT={proxy: true, url2response: Args=>{
+    for(let pageId in url2response_list) {
+      if(Args.pageId !== pageId) continue
+      const p=url2response_list[pageId]
+      typeof p==='function' && p(Args)
+    }
+  }}
+  const browser=newBrowser(headless, HOOKS_JS_INJECT)
+  return async asyncFunc=>{
+    const _browser=await browser
+    const page=await _browser.newPage()
+    const pageId=page._target._targetId
+    url2response_list[pageId]=null
+    asyncFunc({
+      hook: fn=>url2response_list[pageId]=fn,
+      goto: async url=>{
+        await page.goto(url)
+        for(;!page.__BINDED__;) await sleep(1e2)
+      },
+      evaluate: fn=>page.evaluate(fn),
+      end: async _=>{
+        delete url2response_list[pageId]
+        await page.close()
+      },
+    })
+  }
+}
