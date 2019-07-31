@@ -81,7 +81,7 @@ exports.updateResultResponseHeaders=(result, headers)=>{
 exports.fetchUrl=async ({url, method, postData, headers, timeout})=>{
   const {proxy}=require('./get_apis')()
   timeout=timeout || exports.DEFAULT_NETWORK_TIMEOUT
-  const result=await fetchUrl({url, method, postData, headers, timeout, proxySettings: proxy})
+  const result=await fetchUrl({url, method, postData, headers, timeout, proxySettings: proxy}).result
   const content_type=getHeader(result.responseHeaders, 'Content-Type')
   const html=Buffer.from(result.response.slice(0, 2000)).toString('utf-8')
   if(content_type.match(/charset.*?gb/i) || html.match(/meta.*?Content-Type[^>]*gb/i)) {
