@@ -109,13 +109,13 @@ exports.deleteHeader=deleteHeader
 
 exports.requestPipe=async ({
   url, method, postData, headers, timeout,
-  requestOrigin, responseOrigin,
+  requestOrigin, responseOrigin, responseHost,
 })=>new Promise(async (resolve, reject)=>{
   headers=JSON.parse(JSON.stringify(headers))
   const uu=require('url')
   if(headers.Referer) headers.Referer=requestOrigin+uu.parse(headers.Referer).path
   headers.Origin=requestOrigin
-  headers.Host=uu.parse(responseOrigin).host
+  headers.Host=responseHost || uu.parse(responseOrigin).host
   url=responseOrigin+uu.parse(url).path
   try{
     resolve(await exports.fetchUrl({url, method, postData, headers, timeout}))
