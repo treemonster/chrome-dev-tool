@@ -144,6 +144,3 @@ https://example.com
 ## 20190912更新
 
 0. 去掉了内部转发请求获取postData的功能，因为转发牵涉的问题太多，如请求来源，跨域等，不容易解决
-
-0. 增加requestPipe的responseHost参数，可以指定目标域名的ip和端口，省去绑定hosts的麻烦
-

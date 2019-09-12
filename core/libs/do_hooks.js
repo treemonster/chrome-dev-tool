@@ -73,11 +73,11 @@ const makeArgs=({
     }
   }
   Args.addResponseHeader=addResponseHeader
-  Args.requestPipe=async ({requestOrigin, responseOrigin, responseHost, timeout})=>{
+  Args.requestPipe=async ({requestOrigin, responseOrigin, timeout})=>{
     const {status, responseHeaders, response}=await requestPipe({
       url, method, postData, headers,
       timeout: timeout || network_timeout,
-      requestOrigin, responseOrigin, responseHost,
+      requestOrigin, responseOrigin,
     })
     result.status=status
     addResponseHeader(responseHeaders)
