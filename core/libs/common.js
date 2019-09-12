@@ -139,63 +139,6 @@ exports.ERROR_FAILED_FETCH={
 }
 exports.ERROR_TIMEOUT=NETWORK_TIMEOUT_ERROR
 exports.DEFAULT_NETWORK_TIMEOUT=10e3
-const getQuery=link=>querystring.parse(url.parse(link).query)
-exports.newLocalServer=async _=>{
-  const port=await getPort()
-  const {update_header_key, headers2kvheaders}=exports
-  let hookHandler=null, idMap=null
-  require('http').createServer((req, res)=>{
-    const id=decodeURIComponent(getQuery(req.url).id)
-    const {request, page}=idMap[id]
-    const reqObj={
-      url: request.url,
-      headers: request.headers,
-      method: request.method,
-      postData: Buffer.alloc(0),
-    }
-    const {host, protocol}=url.parse(reqObj.url)
-    deleteHeader(reqObj.headers, 'accept-encoding')
-    replaceHeader(reqObj.headers, 'host', host)
-    req.on('data', buf=>reqObj.postData=Buffer.concat([reqObj.postData, buf]))
-    req.on('error', _=>{
-      delete idMap[id]
-    })
-    req.on('end', async _=>{
-      delete idMap[id]
-      const {status, responseHeadersArray, responseHeadersNode, response}=await hookHandler(reqObj, page._target._targetId)
-      if(reqObj.method.match(/GET|POST/i)) {
-        idMap.resCaches[reqObj.url+'\n'+reqObj.method]={
-          status,
-          response,
-          responseHeadersArray,
-        }
-        let _url=page.__DEV_URL__
-        if((_url||'').indexOf(reqObj.url+'#')===0) reqObj.url=_url
-
-        // 307 保持请求方式和参数
-        res.writeHead(307, {
-          Location: reqObj.url,
-          'Access-Control-Allow-Credentials': 'true',
-          'Access-Control-Allow-Origin': reqObj.headers.Origin||'*',
-          'Access-Control-Allow-Method': '*',
-          'Access-Control-Allow-Headers': '*',
-        })
-        res.end()
-      }else{
-        res.writeHead(status, responseHeadersNode)
-        res.end(response)
-      }
-
-    })
-  }).listen(port)
-  return {
-    port,
-    bindHookHandler: (handler, id_map)=>{
-      hookHandler=handler
-      idMap=id_map
-    },
-  }
-}
 
 exports.getPageUrl=async page=>{
   try{

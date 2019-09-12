@@ -21,7 +21,6 @@ exports.watchClient=async (onClient, headless, hooks_js)=>{
   const targetsHooked={}
   const args=[
     '--disable-pnacl-crash-throttling',
-    '--no-referrers',
     '--disable-breakpad',
     '--enable-features=NetworkService,NetworkServiceInProcess',
     '--auto-open-devtools-for-tabs',

@@ -140,3 +140,7 @@ https://example.com
 0. 增加代码注入式编程接口，开发爬虫类工具更方便。见 test-inject-tool.js
 
 0. 增加useragent参数，可以动态修改浏览器页面的useragent
+
+## 20190912更新
+
+0. 去掉了内部转发请求获取postData的功能，因为转发牵涉的问题太多，如请求来源，跨域等，不容易解决
