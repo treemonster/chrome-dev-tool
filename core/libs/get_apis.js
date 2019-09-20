@@ -28,7 +28,7 @@ module.exports=_=>{
   if(hooks.HOOKS_FILE) hooks=requireFile(hooks.HOOKS_FILE)
   return {
     url2cachefile: async c=>{
-      const p=await (ss(hooks.url2cachefile, url2cachefile)(c))
+      let p=await (ss(hooks.url2cachefile, url2cachefile)(c))
       if(p===true) p=_default_url2cachefile(c)
       return p
     },
