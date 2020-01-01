@@ -194,3 +194,23 @@ exports.sandboxTool=async page=>{
   return ret
 }
 
+
+/*
+ Input:
+ url='http://aa.cc/cdsc?a=22#333?cxp=c&dasc=22'
+
+ Output:
+ {
+   hash: {cxp: "c", dasc: "22"},
+   query: {a: "22"},
+ }
+ */
+exports.queryAll=function(url) {
+  const res={query: {}, hash: {}}
+  const bind=(a, b)=>url.replace(a, '$1').split(/&|\?/).map(s=>{
+    s.replace(/^(.*?)=(.*$)/, (_, k, v)=>res[b][decodeURIComponent(k)]=decodeURIComponent(v))
+  })
+  bind(/^[^#\?]+\?(.*?)(?:#.*)*$|^.*$/, 'query')
+  bind(/^.+?#.*?\?(.*$)|^.*$/, 'hash')
+  return res
+}

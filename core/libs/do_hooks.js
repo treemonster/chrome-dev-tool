@@ -5,6 +5,7 @@ const {
   ERROR_TIMEOUT, ERROR_TIMEOUT_FETCH, ERROR_FAILED_FETCH,
   readFileSync, writeFileSync,
   updateResultResponseHeaders,
+  queryAll,
 }=require('./common')
 
 /**
@@ -54,11 +55,15 @@ const makeArgs=({
     postData,
     requestHeaders: headers,
 
+    queryAll,
+
     sleep,
 
     pageId,
 
   }
+
+  Args.queryAll=queryAll(url)
 
   Args.go302=r_url=>{
     result.status=302

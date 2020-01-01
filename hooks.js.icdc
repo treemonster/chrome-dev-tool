@@ -1,0 +1,300 @@
+exports.proxy=false/*{
+  src: 'http://127.0.0.1:8080',
+  ignore: /127\.0\.|360buyimg|\.jd\.com/,
+}*/
+
+exports.url2cachefile=({url})=>{
+  // if(url.match(/vendor.*?js/)) return __dirname+'/'+url.replace(/^.*?([^\/]+$)/g, '$1')
+}
+
+
+const err={}
+exports.url2response=async ({
+  url,
+  method,
+  requestHeaders,
+  postData,
+  requestPipe,
+  waitForResponse,
+  getResponse, getAllResponseHeaders,
+  setResponseType,
+  addResponseHeader,
+  setStatusCode,
+  sleep,
+})=>{
+  setStatusCode(200)
+/*
+  if(url.match(/.(jpg|png)/)) {
+  	url+='cdsc2'
+    if(err[url]) return
+    setStatusCode(504)
+    await sleep(3e3)
+    err[url]=1
+    return "11"
+  }
+*/
+
+  // await sleep(5e3)
+
+
+    if(url.match(/uploadP/)) return JSON.stringify(
+{"userPin":",32132","result":true,"pinPack":"http://storage.jd.local/jdmobilecms/11_1573124836724_GBK.txt"}
+    )
+
+  if(url.match(/client.action/)) return requestPipe({
+    requestOrigin: 'http://h5.m.jd.com',
+    responseOrigin: 'http://api.m.jd.com',
+  })
+
+
+const isLogin=!false
+
+
+  if(url.match(/1111.data\.js\?.*set_oss_configs/)) return "set_oss_configs("+JSON.stringify({
+  "reminder_line": "更多好礼将会陆续发放，快来预约吧",
+  "reminder_small": "开启每日提醒",
+  "my_gift": "奖券已放入“我的-优惠券”；京豆已放入：“我的-京豆”",
+  // 符合查询接口
+  // https://cf.jd.com/pages/viewpage.action?pageId=142400004#id-%E9%80%9A%E5%A4%A9%E5%A1%94%E5%A4%8D%E5%90%88%E5%86%85%E5%AE%B9%E6%9F%A5%E8%AF%A2%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3-2.3next%E5%AD%97%E6%AE%B5%E6%A0%BC%E5%BC%8F
+  "advert_body": [
+    {
+      "type": "advertGroup",
+      "id": "03779685",
+      "mapTo": "Brands",
+    },
+    {
+      "type": "advertGroup",
+      "id": "03780376",
+      "mapTo": "BrandsIdName",
+    },
+    {
+      "type": "advertGroup",
+      "id": "03779718",
+      "mapTo": "Stars"
+    },
+    {
+      "type": "advertGroup",
+      "id": "03779746",
+      "mapTo": "AllGifts10Days",
+    },
+    {
+      "type": "advertGroup",
+      "id": "03780173",
+      "mapTo": "TodayGiftsAll",
+    },
+    {
+      "type": "advertGroup",
+      "id": "03780226",
+      "mapTo": "Tasks",
+      "next": [
+        {
+          "type": "productGroup",
+          "mapKey": "extension.copy1",
+          "mapTo": "TasksSkus"
+        }
+      ]
+    },
+    {
+      "type": "advertGroup",
+      "id": "03779745",
+      "mapTo": "Feeds",
+      "next": [
+        {
+          "type": "productGroup",
+          "mapKey": "extension.copy1",
+          "mapTo": "FeedsFirst"
+        },
+        {
+          "type": "productGroup",
+          "mapKey": "extension.copy2",
+          "mapTo": "FeedsSecond"
+        },
+      ]
+    },
+    {
+      "type": "advertGroup",
+      "id": "03780459",
+      "mapTo": "RuleUrl",
+    },
+    {
+      "type": "advertGroup",
+      "id": "03780461",
+      "mapTo": "Share",
+    },
+    {
+      "type": "advertGroup",
+      "id": "03868423",
+      "mapTo": "OtherLink",
+    }
+
+  ],
+  toUrl_delay: 1,
+  maxDou: 600,
+
+  size_tasks: [300,300],
+  size_feeds: [450,450],
+
+  rulebtn: {
+    report: {
+      eventId: 'Babel_dev_adv_Super_City',
+      eventParam: '00509749_0801243591_03780389_1',
+    },
+    img: 'https://storage.jd.com/618huichang/right.png',
+    style: {
+      position: 'absolute',
+      right: '.16rem',
+      top: '1.5rem',
+      width: '1.53rem',
+      height: '2rem',
+      backgroundSize: "contain",
+      zIndex: 9999,
+    },
+  },
+
+  pagetitle: '京东超级品牌日',
+
+  // 分享图片和文案配置在此，其他配置信息不要放在这里
+  share: {
+    img: 'https://storage.jd.com/618huichang/share.jpg',
+    title: '明星送好礼，狂撒亿万京豆',
+    content: '11.2~11.10上京东摇一摇，好物大奖等你来，更有明星送好礼，狂撒亿万京豆，速来抢抢抢！',
+    desc: '11.2~11.10上京东摇一摇，好物大奖等你来，更有明星送好礼，狂撒亿万京豆，速来抢抢抢！',
+    timeline_title: '11.2~11.10上京东摇一摇，好物大奖等你来，更有明星送好礼，狂撒亿万京豆，速来抢抢抢！',
+  },
+
+  // 没有品牌参加时，提示文案
+  noBrandMsg: `!#color: rgb(255, 255, 255);font-size: 0.5rem;line-height: 1.5;margin: -1rem 1rem;font-weight: normal; // 大标题
+  活动正在准备中，休息一下，明天再来领取好礼~
+  `,
+
+  // 是否新开页面
+  showTaskNewPage: 1,
+
+  reminder: {
+  	tag: '超级品牌',
+    title: '明星送好礼  狂撒亿万京豆',
+  },
+
+})+")"
+/*
+  if(url.match(/queryPageGroupAdvert|queryPageProductG/)) return JSON.stringify(
+{"erpNo":"chenwengao1","returnMsg":"query success","code":"0","totalSize":22,"subCode":"0","totalPage":2,"userType":0,"list":[{"erpNo":"chenwengao1","ext":{isArchive: 1, "isRenewProductPic":"1"},"cateStr":null,"useBi":"0","useDelivery":"","sortFlag":"","isLock":0,"userList":"","totalNum":1,"styleId":6,"prodGroupType":"5","name":"fewqf","sortAttributes":"","id":"06820799","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"0","useDelivery":"","sortFlag":"","isLock":1,"userList":"","totalNum":1,"styleId":6,"prodGroupType":"5","name":"efds","sortAttributes":"","id":"06820059","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"0","useDelivery":"","sortFlag":"","isLock":1,"userList":"","totalNum":1,"styleId":6,"prodGroupType":"5","name":"434332","sortAttributes":"","id":"06820058","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"","useDelivery":"","sortFlag":"","isLock":0,"userList":"","totalNum":120,"styleId":101,"prodGroupType":"15","name":"点睛生活","sortAttributes":"","id":"06819645","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"","useDelivery":"","sortFlag":"","isLock":0,"userList":"","totalNum":120,"styleId":101,"prodGroupType":"15","name":"测线秒2","sortAttributes":"","id":"06819643","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"tbst":"200","isRenewProductPic":"1"},"cateStr":null,"useBi":"0","useDelivery":"","sortFlag":"","isLock":0,"userList":"","totalNum":21,"styleId":0,"prodGroupType":"","name":"12","sortAttributes":"","id":"06819320","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"tbst":"200","isRenewProductPic":"1"},"cateStr":null,"useBi":"0","useDelivery":"","sortFlag":"","isLock":1,"userList":"","totalNum":22,"styleId":0,"prodGroupType":"","name":"dewd","sortAttributes":"","id":"06819293","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"tbst":"200","isRenewProductPic":"1"},"cateStr":null,"useBi":"0","useDelivery":"","sortFlag":"","isLock":1,"userList":"","totalNum":39,"styleId":0,"prodGroupType":"","name":"433","sortAttributes":"","id":"06819286","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"0","useDelivery":"","sortFlag":"","isLock":1,"userList":"","totalNum":1,"styleId":6,"prodGroupType":"5","name":"2331","sortAttributes":"","id":"06819262","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"","useDelivery":"","sortFlag":"","isLock":0,"userList":"","totalNum":120,"styleId":101,"prodGroupType":"15","name":"4","sortAttributes":"","id":"06819260","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"tbst":"200","isRenewProductPic":"1"},"cateStr":null,"useBi":"0","useDelivery":"","sortFlag":"","isLock":0,"userList":"","totalNum":2,"styleId":0,"prodGroupType":"","name":"hr","sortAttributes":"","id":"06819174","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"tbst":"200","isRenewProductPic":"1"},"cateStr":null,"useBi":"0","useDelivery":"","sortFlag":"","isLock":1,"userList":"","totalNum":2,"styleId":0,"prodGroupType":"","name":"1","sortAttributes":"","id":"06819168","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"tbst":"200","isRenewProductPic":"1"},"cateStr":null,"useBi":"0","useDelivery":"","sortFlag":"","isLock":1,"userList":"","totalNum":2,"styleId":0,"prodGroupType":"","name":"4343","sortAttributes":"","id":"06819166","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"","useDelivery":"","sortFlag":"","isLock":1,"userList":"","totalNum":120,"styleId":101,"prodGroupType":"15","name":"565","sortAttributes":"","id":"06819099","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"","useDelivery":"","sortFlag":"","isLock":0,"userList":"","totalNum":120,"styleId":101,"prodGroupType":"15","name":"565","sortAttributes":"","id":"06819098","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"","useDelivery":"","sortFlag":"","isLock":0,"userList":"","totalNum":120,"styleId":101,"prodGroupType":"15","name":"11","sortAttributes":"","id":"06818971","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"","useDelivery":"","sortFlag":"","isLock":0,"userList":"","totalNum":120,"styleId":101,"prodGroupType":"15","name":"34","sortAttributes":"","id":"06818970","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"","useDelivery":"","sortFlag":"","isLock":0,"userList":"","totalNum":120,"styleId":101,"prodGroupType":"15","name":"11","sortAttributes":"","id":"06818946","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"","useDelivery":"","sortFlag":"","isLock":0,"userList":"","totalNum":120,"styleId":101,"prodGroupType":"15","name":"11","sortAttributes":"","id":"06818901","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"},{"erpNo":"chenwengao1","ext":{"isRenewProductPic":"1"},"cateStr":null,"useBi":"","useDelivery":"","sortFlag":"","isLock":0,"userList":"","totalNum":120,"styleId":101,"prodGroupType":"15","name":"11","sortAttributes":"","id":"06818900","userType":"","endTime":null,"region":"","brand":"","sortCategories":"","showRptIcon":"0","status":"1"}]}
+  )
+
+  if(url.match(/queryArchiveGroupInfo/)) return JSON.stringify(
+{"erpNo":"chenwengao1","parentsId":2090,"returnMsg":"query success","code":"0","totalSize":3,"subCode":"0","totalPage":1,"userType":0,"list":[{"created":"2019-11-22 17:37:46.0","num":1,"groupId":"10434072","name":"榜单id22222","id":2093,"type":3,"picture":""},{"created":"2019-11-22 17:37:45.0","num":1,"groupId":"10976035","name":"商品测试222","id":2091,"type":3,"picture":""},{"created":"2019-11-22 17:37:45.0","num":1,"groupId":"10450619","name":"233232","id":2092,"type":3,"picture":""}],"projectId":2089}
+  )
+*/
+
+  if(url.match(/queryAdvert/)) return JSON.stringify(
+{"erpNo":"chenwengao1","groupType":"0","code":"0","curStageBiType":"1","stageList":[{"ext":{"tab3Flag":"0","isFromTibao":false,"skuCount":"10","opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":6,"sortDeliveryId":"15674937","beginDate":"2019-09-17 15:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09843849","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":false,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":12,"sortDeliveryId":"15793129","beginDate":"2019-09-24 16:31:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09875458","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":false,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":24,"sortDeliveryId":"16150806","beginDate":"2019-09-25 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09971685","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":36,"sortDeliveryId":"16092050","beginDate":"2019-10-18 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09837851","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":32,"sortDeliveryId":"16092061","beginDate":"2019-10-19 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09904730","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":31,"sortDeliveryId":"16092126","beginDate":"2019-10-20 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09904733","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":32,"sortDeliveryId":"16092141","beginDate":"2019-10-21 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09904732","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":31,"sortDeliveryId":"16092149","beginDate":"2019-10-22 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09904731","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":34,"sortDeliveryId":"16092155","beginDate":"2019-10-23 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09904735","status":"0","opPicStatus":null},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":31,"sortDeliveryId":"16092164","beginDate":"2019-10-24 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09904737","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":30,"sortDeliveryId":"16092185","beginDate":"2019-10-25 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09904734","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":31,"sortDeliveryId":"16092218","beginDate":"2019-10-26 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09904736","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":31,"sortDeliveryId":"16092277","beginDate":"2019-10-27 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09904740","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":28,"sortDeliveryId":"16092285","beginDate":"2019-10-28 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09904746","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":31,"sortDeliveryId":"16092392","beginDate":"2019-10-29 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905022","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":30,"sortDeliveryId":"16092542","beginDate":"2019-10-30 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905016","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":32,"sortDeliveryId":"16092566","beginDate":"2019-10-31 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905017","status":"0","opPicStatus":null},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":32,"sortDeliveryId":"16530541","beginDate":"2019-11-01 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905027","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":28,"sortDeliveryId":"16689929","beginDate":"2019-11-02 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905021","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":null},"isReport":"0","useBi":"0","deliveryType":"1","blacklist":[],"biType":"0","useRnd":"0","addNum":35,"sortDeliveryId":"16690936","beginDate":"2019-11-03 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905025","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":35,"sortDeliveryId":"16691199","beginDate":"2019-11-04 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905024","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":36,"sortDeliveryId":"16691494","beginDate":"2019-11-05 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905020","status":"0","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":33,"sortDeliveryId":"16691646","beginDate":"2019-11-06 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905026","status":"1","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":35,"sortDeliveryId":"16691778","beginDate":"2019-11-07 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905029","status":"1","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":38,"sortDeliveryId":"16773945","beginDate":"2019-11-08 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905258","status":"1","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":29,"sortDeliveryId":"16972386","beginDate":"2019-11-09 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905262","status":"1","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":32,"sortDeliveryId":"17032667","beginDate":"2019-11-10 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905266","status":"1","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":33,"sortDeliveryId":"17032849","beginDate":"2019-11-11 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905261","status":"1","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":31,"sortDeliveryId":"17065802","beginDate":"2019-11-12 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905265","status":"1","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":27,"sortDeliveryId":"17127990","beginDate":"2019-11-13 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905267","status":"1","opPicStatus":"1"},{"ext":{"tab3Flag":"","isFromTibao":true},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":29,"sortDeliveryId":"17128158","beginDate":"2019-11-14 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905268","status":"1","opPicStatus":null},{"ext":{"tab3Flag":"","isFromTibao":true},"isReport":"0","useBi":"1","deliveryType":"1","blacklist":[],"biType":"1","useRnd":"0","addNum":25,"sortDeliveryId":"17128245","beginDate":"2019-11-15 00:00:00.0","deliveryId":"","stageName":"","totalNum":12,"topList":[],"poolId":null,"stageId":"09905272","status":"1","opPicStatus":null}],"biDeliveryId":"16691646","linkTypes":["1"],"advertGroupIdentify":0,"isLock":0,"deliveryId":"","subCode":"0","advertGroupBi":{"useBi":"0","deliveryType":""},"createByErpNo":"zhangxunhao","stageExt":{"tab3Flag":"","isFromTibao":true,"opPicStatus":"1","usePic":"0"},"curStageRndType":"0","stageId":"09905026","showRptIcon":"0","ext":{},"deliveryType":"1","useDelivery":"0","advGroupType":"1","advertList":[
+{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"8A0zo398euI=","tab3Flag":"","opPic":"0","usePic":"0"},"isReport":"1","link":"https://h5.m.jd.com/dev/RLVegkgjdNJoM4Y1WsvAnKLD7Qw/index.html?appurl=https%3A%2F%2Fshop.m.jd.com%3FshopId%3D793730%26utm_source%3Dpdappwakeupup_20170002","useBi":"0",canBi: true,"isEntryUrl":0,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"1","activityOverdue":"-1","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/74698/29/14079/42025/5db8086eEec3ed74f/9c1408fdca12cde7.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"","advertId":"0501249968","activityUrlStartTime":"","name":"OPPO新品","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"K5下单立减100","status":1},
+{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"jWg0RkC2muU=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692022"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/eNGj5gZMWcjxhvQLoffkfZzCrfN/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],canBi: false,"sortNum":"2","activityOverdue":"0","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/86780/23/1098/50173/5db8158aEdae01d07/6a1c17f34ec396fd.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2020-02-21 00:00:00.0","advertId":"0501249969","activityUrlStartTime":"2019-10-12 19:47:29.0","name":"OPPO大促","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"购机赠屏碎保","status":1},
+{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"VFxJbm2rUbo=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692023"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/4L4946Cc2RZ9Mkr2w5oGFt7x7Kis/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[], canBi: true,"sortNum":"3","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/50885/4/14558/51423/5db910a6Ecea4995b/371b7bc649fc5666.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-28 00:00:00.0","advertId":"0501249970","activityUrlStartTime":"2019-10-13 16:22:24.0","name":"OPPO手机","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"全场至高减1000","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"MapHFvljqagBBlITEyBAiQ==","tab3Flag":"","opPic":"0","usePic":"0","did":"16692024"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/2SghGAhU2vgbMNe1TXruzMurvNGb/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"4","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/96518/8/246/32409/5da98954Ebf01ca0d/fdd44ae3ddb765ce.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-15 00:00:00.0","advertId":"0501249971","activityUrlStartTime":"2019-10-18 17:21:46.0","name":"MANN手机","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"6期免息","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"5YdvMWvfYqs=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692025"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/3iCaoENb7fpyAECKeEAzcvfDBEPz/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"5","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/99559/26/538/55479/5dafbc0cE68e370d2/58d500d38cc55db4.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-30 00:00:00.0","advertId":"0501249972","activityUrlStartTime":"2019-10-12 17:31:23.0","name":"OPPO手机","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"至高12期免息","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"PBHzfp5Ery8=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692026"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/3MpiN3uksSAXy7vAjg752UpfkFc7/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"6","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/79897/20/13262/58787/5da97762E283ac06a/6ac1fabc8587f9ff.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-13 00:00:00.0","advertId":"0501249973","activityUrlStartTime":"2019-10-18 16:10:36.0","name":"华为","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"白条免息赠好礼","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"2KCoHYOieuk=","tab3Flag":"","opPic":"0","usePic":"0"},"isReport":"1","link":"https://h5.m.jd.com/dev/RLVegkgjdNJoM4Y1WsvAnKLD7Qw/index.html?appurl=https%3A%2F%2Fshop.m.jd.com%3FshopId%3D756247%26utm_source%3Dpdappwakeupup_20170002","useBi":"1","isEntryUrl":0,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"7","activityOverdue":"-1","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/51819/13/10288/68547/5db051c8E294f7ce7/4c2ffc9dcb3b9d54.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"","advertId":"0501249974","activityUrlStartTime":"","name":"手机直降","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"最高24期免息","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"HbI+ZJEHzHQ=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692027"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/5Xc4WtwAX9Fc3Ut2DH8vbjD6BsP/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"8","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/95763/28/627/68236/5db0fb74E9ead9c53/e9ef063fb95586d5.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-28 00:00:00.0","advertId":"0501249975","activityUrlStartTime":"2019-09-05 00:00:00.0","name":"爆款优惠","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"送品牌无线充","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"BABRTLpnQTs=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692028"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/DhTq7oBwnupETizK98NXywptZRP/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"9","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/82174/37/13071/16639/5da52601E5381e3dc/90ce43a88f9d1f96.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-16 00:00:00.0","advertId":"0501249976","activityUrlStartTime":"2019-10-22 14:27:58.0","name":"电信官旗","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"全场至高减1000","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"F+LbMm7zDVo=","tab3Flag":"","opPic":"0","usePic":"0"},"isReport":"1","link":"https://h5.m.jd.com/dev/RLVegkgjdNJoM4Y1WsvAnKLD7Qw/index.html?appurl=https%3A%2F%2Fshop.m.jd.com%3FshopId%3D583194","useBi":"1","isEntryUrl":0,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"10","activityOverdue":"-1","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/69478/12/13149/31387/5da6d886E9bf46d46/68db88b0662a9fc5.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"","advertId":"0501249977","activityUrlStartTime":"","name":"手机好店","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"购机赠多重好礼","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"dMp8gGjaal8=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692029"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/d4hWigbs2w5YNiUuyUXFbt38PLw/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"11","activityOverdue":"0","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/99242/6/226/55924/5da936e6Ea27b5f75/759343d0b51227d6.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2020-01-31 00:00:00.0","advertId":"0501249978","activityUrlStartTime":"2019-10-15 18:03:55.0","name":"优惠好物","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"送多重好礼","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"mtjwHrJlD6wBBlITEyBAiQ==","tab3Flag":"","opPic":"0","usePic":"0","did":"16692030"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/37e6mBjdrSbyzXBusrDj4U8Tb32q/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"12","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/79504/21/13084/66159/5da55a50E989352e4/1b9b90b5cb878697.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-30 00:00:00.0","advertId":"0501249979","activityUrlStartTime":"2019-10-18 00:00:00.0","name":"热卖单品","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"购机赠礼","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"nnnIGeun1J8BBlITEyBAiQ==","tab3Flag":"","opPic":"0","usePic":"0","did":"16692031"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/212UwQ62TBpzVn5Mje4uynsd1Xth/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"13","activityOverdue":"0","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/81240/23/13059/39524/5da6d3cfE059f02fc/42b6c80c5a1c263c.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2020-01-31 00:00:00.0","advertId":"0501249980","activityUrlStartTime":"2019-10-16 00:00:00.0","name":"AGM活动","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"低至5折","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"dJoZZjf7ipU=","tab3Flag":"","opPic":"0","usePic":"0"},"isReport":"1","link":"https://h5.m.jd.com/dev/RLVegkgjdNJoM4Y1WsvAnKLD7Qw/index.html?appurl=https%3A%2F%2Fshop.m.jd.com%3FshopId%3D780775%26utm_source%3Dpdappwakeupup_20170002","useBi":"1","isEntryUrl":0,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"14","activityOverdue":"-1","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/99819/20/211/50986/5da939ebE5364a954/c57201bf84e644f0.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"","advertId":"0501249981","activityUrlStartTime":"","name":"苹果手机","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"最高直降1000元","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"s6WrW7P57JM=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692032"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/2wtCEuXv7X8ybdZMjmGUY8sdFdVY/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"15","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/69549/4/13070/48489/5da6d726Ed8b08bd9/e6c6eea6a85225d8.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-16 23:59:59.0","advertId":"0501249982","activityUrlStartTime":"2019-10-18 00:00:00.0","name":"聚捷联盛","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"购机送好礼","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"7TRrB3pN4Io=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692033"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/4MQFeTXgUjxBStUbXL819hK5xftr/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"16","activityOverdue":"0","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/66963/13/12731/46435/5da19cdbE124d0138/d48397c808904cff.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-12-31 00:00:00.0","advertId":"0501249983","activityUrlStartTime":"2019-10-12 17:22:15.0","name":"华为","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"下单赠大礼包","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"0lG/pnkl0Ew=","tab3Flag":"","opPic":"0","usePic":"0"},"isReport":"1","link":"https://h5.m.jd.com/dev/RLVegkgjdNJoM4Y1WsvAnKLD7Qw/index.html?appurl=https%3A%2F%2Fshop.m.jd.com%3FshopId%3D624094%26utm_source%3Dpdappwakeupup_20170002","useBi":"1","isEntryUrl":0,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"17","activityOverdue":"-1","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/70911/6/12847/56866/5da1aae3E7d9bed3e/e9370459b170016e.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"","advertId":"0501249984","activityUrlStartTime":"","name":"疆界盛典","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"现货速发赠好礼","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"WYmUpUFYeu0BBlITEyBAiQ==","tab3Flag":"","opPic":"0","usePic":"0","did":"16692034"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/mSpPAoyN2Z3j8ytwhMNWY4AWS1h/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"18","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/54852/15/13469/39259/5da42a97Ed8c0462f/78d7402e801abb1c.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-30 00:00:00.0","advertId":"0501249985","activityUrlStartTime":"2019-10-12 23:03:22.0","name":"潮流好物","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"6期免息买赠","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"Yp/SHnexlJ0=","tab3Flag":"","opPic":"0","usePic":"0"},"isReport":"1","link":"https://h5.m.jd.com/dev/RLVegkgjdNJoM4Y1WsvAnKLD7Qw/index.html?appurl=https%3A%2F%2Fshop.m.jd.com%3FshopId%3D791529%26utm_source%3Dpdappwakeupup_20170002","useBi":"1","isEntryUrl":0,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"19","activityOverdue":"-1","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/74658/11/12819/54678/5da1a3dbE263d1ce3/486d52b4c2f425a9.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"","advertId":"0501249986","activityUrlStartTime":"","name":"华为新品","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"赠好礼享免息","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"wLAc0m9RjC0=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692035"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/3Djo53ySFR78Q89M4tXs72Qq7XQq/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"20","activityOverdue":"0","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/68289/38/12811/63976/5da1a972E259ac617/c5c394e6a6245a11.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2020-06-24 00:00:00.0","advertId":"0501249987","activityUrlStartTime":"2019-05-28 15:30:23.0","name":"8848","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"立省7300元","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"yMOPviCO9nQ=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692036"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/326wbfgvqjADK1rmW6yKPkNMVNM/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"21","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/70716/5/12805/21437/5da1a8a7Ede63997d/0df51bc2ac8e1f5b.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-15 00:00:00.0","advertId":"0501249988","activityUrlStartTime":"2019-10-18 00:00:00.0","name":"手机好店","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"价优/购机送礼","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"5OLl+xctfr0=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692037"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/48dsqARoa5nLepsgD6VUypKm2mJF/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"22","activityOverdue":"0","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/100517/35/150/18540/5da7d912E8bb2f765/4f91e35857070783.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-12-31 00:00:00.0","advertId":"0501249989","activityUrlStartTime":"2018-06-01 00:00:00.0","name":"vivo","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"抢券优惠1111","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"UFkUcivOnAI=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692038"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/22P3DWFKNxqzkkpjmXb24NMdPyWV/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"23","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/49495/2/13269/57426/5da1b1d7E7d971e91/de65b259167e3083.png","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-11 00:00:00.0","advertId":"0501249990","activityUrlStartTime":"2019-10-18 00:00:00.0","name":"手机好店","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"购机送好礼","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"CSnucoQ44Cs=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692039"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/3HXJKFwiSqoKTTR8y71BJWDbgWLL/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"24","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/77575/27/13062/63982/5da406d9Ea2e05bef/3e897afc17f416b8.png","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-30 00:00:00.0","advertId":"0501249991","activityUrlStartTime":"2019-10-14 09:53:06.0","name":"王牌出击","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"6期免息豪礼","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"434iRVxAuLc=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692040"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/3jCLnqg13GFMPCKnuv88FWnps7Hv/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"25","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/71831/15/12890/55156/5da3debcEe3a37a4a/9cafc796ad1a505f.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-30 00:00:00.0","advertId":"0501249992","activityUrlStartTime":"2019-10-14 10:00:36.0","name":"提前购","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"至高12期免息","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"EzTzY5MmMD0=","tab3Flag":"","opPic":"0","usePic":"0"},"isReport":"1","link":"https://h5.m.jd.com/dev/RLVegkgjdNJoM4Y1WsvAnKLD7Qw/index.html?appurl=https%3A%2F%2Fshop.m.jd.com%3FshopId%3D730340%26utm_source%3Dpdappwakeupup_20170002","useBi":"1","isEntryUrl":0,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"26","activityOverdue":"-1","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/104985/37/67/63945/5da6de44Ee40d53b3/fc82ca0adaf918ea.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"","advertId":"0501249993","activityUrlStartTime":"","name":"手机好店","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"低至5折","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"o/+oCwEP3SEBBlITEyBAiQ==","tab3Flag":"","opPic":"0","usePic":"0","did":"16692041"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/447KhksE7NZ7mBptsYJbQre7CHPE/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"27","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/52972/28/13622/63267/5da5602fEdf6efd18/31d08b16e303eab9.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-10-31 00:00:00.0","advertId":"0501249994","activityUrlStartTime":"2019-10-18 00:00:00.0","name":"惠利全场","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"至高满减200","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"XWFukTzSpv4=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692042"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/rUXPkyuj1h8Exz2QWqCet7gAwAv/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"28","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/59399/37/13079/35908/5da5334dEf83ea47a/788d49bf989bdf31.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-30 00:00:00.0","advertId":"0501249995","activityUrlStartTime":"2019-10-15 10:25:44.0","name":"爆款低价","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"至高12期免息","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"gfTjVkWWLGcBBlITEyBAiQ==","tab3Flag":"","opPic":"0","usePic":"0"},"isReport":"1","link":"https://h5.m.jd.com/dev/RLVegkgjdNJoM4Y1WsvAnKLD7Qw/index.html?appurl=https%3A%2F%2Fshop.m.jd.com%3FshopId%3D10101184%26utm_source%3Dpdappwakeupup_20170002","useBi":"1","isEntryUrl":0,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"29","activityOverdue":"-1","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/80981/10/13094/66275/5da443c6E29855b59/f3d6a5b0a1473a54.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"","advertId":"0501249996","activityUrlStartTime":"","name":"vivo专卖","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"至高优惠500","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"GOfOPFBTgvM=","tab3Flag":"","opPic":"0","usePic":"0","did":"16692043"},"isReport":"1","link":"https://pro.m.jd.com/mall/active/22JtUmBGMU11jRAeZ18eoaK5vMCT/index.html","useBi":"1","isEntryUrl":1,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"30","activityOverdue":"2","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/79552/16/12956/59988/5da53f38E098c1072/22b5626fc4202eb3.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"2019-11-16 00:00:00.0","advertId":"0501249997","activityUrlStartTime":"2019-10-14 11:46:58.0","name":"国产手机","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"移动电源6重礼","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"gVv2IZ/7ezI=","tab3Flag":"","opPic":"0","usePic":"0"},"isReport":"1","link":"https://h5.m.jd.com/dev/RLVegkgjdNJoM4Y1WsvAnKLD7Qw/index.html?appurl=https%3A%2F%2Fshop.m.jd.com%3FshopId%3D750688%26utm_source%3Dpdappwakeupup_20170002","useBi":"1","isEntryUrl":0,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"31","activityOverdue":"-1","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/62628/28/13017/42081/5da3c6eaE2bfc7576/1f64a21c8dc22341.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"","advertId":"0501249998","activityUrlStartTime":"","name":"钜惠入口","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"3期免息送蓝牙","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"bcOK1Z6D5mo=","tab3Flag":"","opPic":"0","usePic":"0"},"isReport":"1","link":"https://h5.m.jd.com/dev/RLVegkgjdNJoM4Y1WsvAnKLD7Qw/index.html?appurl=https%3A%2F%2Fshop.m.jd.com%3FshopId%3D679099%26utm_source%3Dpdappwakeupup_20170002","useBi":"1","isEntryUrl":0,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"32","activityOverdue":"-1","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/81302/15/12844/62445/5da1ac6dEe5ae517b/1821d91bf624c377.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"","advertId":"0501249999","activityUrlStartTime":"","name":"优惠嗨购","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"新品手机狂欢购","status":1},{"picWidth":"250","advertSource":"1","extension":{"fp":"eqpZ4Zz5kD0shlaLZveJiQ==","ap":"f8tNbsdZ50wBBlITEyBAiQ==","tab3Flag":"","opPic":"0","usePic":"0"},"isReport":"1","link":"https://h5.m.jd.com/dev/RLVegkgjdNJoM4Y1WsvAnKLD7Qw/index.html?appurl=https%3A%2F%2Fshop.m.jd.com%3FshopId%3D920142%26utm_source%3Dpdappwakeupup_20170002","useBi":"1","isEntryUrl":0,"userList":"","pinPack":"","relateGroupList":[],"sortNum":"33","activityOverdue":"-1","beginTime":"2019-11-06 00:00:00","brand":"","linkParam":"","deliveryInfo":{},"picHeight":"250","advertComment":"","pictureUrl":"https://m.360buyimg.com/babel/jfs/t1/56194/32/13225/64534/5da19046E7b282a49/333c267b6f45cc57.jpg","useDelivery":"0","picSize":"0","sortFlag":"Y","activityUrlEndTime":"","advertId":"0501250000","activityUrlStartTime":"","name":"臻火","sortAttributes":"","linkType":"1","userType":"","endTime":"2019-11-06 00:00:00","region":"","isPass":"0","desc":"分期免息送好礼","status":1}],"returnMsg":"deal success","pcCmsPoolId":"0","maxShowNum":"12","totalNum":"12","stageBeginTime":"2019-11-06 00:00:00.0","advGroupTitle":"3C零售-手机好店","userType":0}
+  )
+
+  if(url.match(/beta[u\-]mc.jd.com/)) setResponseType('json')
+
+/*
+  // 线上接口
+  if(url.match(/beta[u\-]mc.jd.com/)) return requestPipe({
+    requestOrigin: 'http://ace.jd.com',
+    responseOrigin: 'http://umc.jd.com',
+  })
+*/
+
+  if(url.match(/resultSkuList/)) {
+    const a=await requestPipe({
+      requestOrigin: 'http://beta-ace.jd.com',
+      responseOrigin: 'http://betaumc.jd.com',
+    })
+    const b=JSON.parse(a.toString('utf8'))
+    b.materialType='1'
+    b.resultSkuList[0].link='http://baidu.com'
+    return JSON.stringify(b)
+  }
+
+  // 预发接口
+  if(url.match(/material.jd.com|(beta.*?)*mc.jd.com/)) return requestPipe({
+    requestOrigin: 'http://ace.jd.com',
+    responseOrigin: 'http://umc.jd.com',
+  })
+
+  /*
+  线上使用预发
+  if(url.match(/umc.jd.com/)) return requestPipe({
+    requestOrigin: 'http://betah5.m.jd.com',
+    responseOrigin: 'http://betaumc.jd.com',
+  })
+  */
+
+}
+
+
+exports.runScriptOnUrlChange=async ({
+  url,
+  page,
+  $, mouse, keyboard,
+  sleep, evaluate,
+})=>{
+
+  const {focus, click, hover}=mouse
+  const {ctrlBackspace, type, enter}=keyboard
+
+return;
+  const tin=async (q, str)=>{
+    await focus(q)
+    await ctrlBackspace()
+    await type(str)
+  }
+
+  if(url.match(/#\/login/)) {
+  	await click('.a-login')
+  }
+  /*
+  // erp登陆还是手打比较安全，避免违规操作
+  if(url.match(/http\:\/\/ssa.jd.com\/sso\/login/)) {
+    await tin('.login_form_inp_input[type=text]', 'chenwengao1')
+    // tin('.login_form_inp_input[type=password]', '密码')
+    await keyboard.enter()
+  }
+  */
+  if(url.match(/\/#\/(\?sso_service_ticket|$)/)) {
+  	await sleep(1e3)
+    await click('li[clstag="pageclick|keycount|donggarden_1553828827002|1"]')
+  }
+  if(url.match(/\/#\/scenePage/)) {
+    await click('#userGuideStep2')
+    await sleep(1e3)
+    page.close()
+  }
+
+
+  if(url.match(/\/#\/editScenePage\/*$/)) {
+    await sleep(1e3)
+    await tin('#pageTitle', '11')
+    await tin('#benefitPoint', '22')
+    await tin('#shortTitle', '33')
+    await tin('#shareName', '44')
+    await tin('#shareDesc', '55')
+    await hover('[clstag="pageclick|keycount|donggarden_1553828827002|40"]')
+    await click('.ant-dropdown-menu-item a')
+    await click('.ant-radio-wrapper:nth-child(4)')
+    for(let i=0; i<2; i++) {
+      await click('.addWrap')
+      await click('.ant-select-search__field')
+      await tin('.ant-select-search__field', (i+1)+'')
+      await sleep(1e3)
+      await click('ul.ant-select-dropdown-menu.ant-select-dropdown-menu-root.ant-select-dropdown-menu-vertical li')
+      await $('.ant-modal-body .sp-tag-text')
+      await click('.ant-modal-footer .ant-btn.ant-btn-primary')
+    }
+    await click('.ant-btn.commonBtn.ant-btn-primary')
+    // await sleep(1e3)
+    // await click('.upload-change-text')
+    const upload=await $('input[type=file]')
+    await upload.uploadFile('d:\\我的文档\\桌面\\590x230.jpg')
+  }
+
+}
+
