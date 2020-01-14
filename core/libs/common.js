@@ -207,10 +207,12 @@ exports.sandboxTool=async page=>{
  */
 exports.queryAll=function(url) {
   const res={query: {}, hash: {}}
-  const bind=(a, b)=>url.replace(a, '$1').split(/&|\?/).map(s=>{
-    s.replace(/^(.*?)=(.*$)/, (_, k, v)=>res[b][decodeURIComponent(k)]=decodeURIComponent(v))
-  })
-  bind(/^[^#\?]+\?(.*?)(?:#.*)*$|^.*$/, 'query')
-  bind(/^.+?#.*?\?(.*$)|^.*$/, 'hash')
+  try{
+    const bind=(a, b)=>url.replace(a, '$1').split(/&|\?/).map(s=>{
+      s.replace(/^(.*?)=(.*$)/, (_, k, v)=>res[b][decodeURIComponent(k)]=decodeURIComponent(v))
+    })
+    bind(/^[^#\?]+\?(.*?)(?:#.*)*$|^.*$/, 'query')
+    bind(/^.+?#.*?\?(.*$)|^.*$/, 'hash')
+  }catch(e) {}
   return res
 }
