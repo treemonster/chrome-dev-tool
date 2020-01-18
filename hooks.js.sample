@@ -2,6 +2,10 @@
 // 当HOOKS_FILE这个导出值存在时，本文件内定义的其他编程接口将无效。以HOOKS_FILE指定的hooks.js内容为准
 exports.HOOKS_FILE='path/to/hooks.js'
 
+// 若有本地代理，建议手动设置代理地址，因为直接读取系统代理目前可能读取错误
+exports.proxy=false /* {
+  src: 'http://127.0.0.1:8080'
+} */
 
 // 网络请求超时，默认10秒
 exports.NETWORK_TIMEOUT=10e3
