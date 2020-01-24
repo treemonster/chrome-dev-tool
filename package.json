@@ -2,7 +2,7 @@
   "dependencies": {
     "chrome-finder": "^1.0.5",
     "chrome-remote-interface": "^0.27.1",
-    "cwg-fetch": "^1.1.1",
+    "cwg-fetch": "^1.1.2",
     "get-port": "^5.0.0",
     "iconv-lite": "^0.4.24",
     "puppeteer-core": "^1.18.1"
