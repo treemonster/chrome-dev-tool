@@ -148,3 +148,7 @@ https://example.com
 ## 20200101更新
 
 0. 增加queryAll字段，可直接获取url里的参数
+
+## 20200204更新
+
+0. 增加 cacheUrlBy，cacheData，cacheClear 方法，用于缓存请求结果数据，当缓存存在时，无需访问目标服务器即可返回之前的响应结果

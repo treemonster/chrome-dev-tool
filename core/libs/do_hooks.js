@@ -36,6 +36,7 @@ const {
 
  }
  */
+let __caches={}, __caches_url=/$^/
 const makeArgs=({
   url, method, postData, headers,
 
@@ -142,6 +143,15 @@ const makeArgs=({
   Args.getStatusCode=_=>result.status
   Args.setStatusCode=status=>result.status=status
 
+  Args.cacheUrlBy=urlReg=>{
+    __caches_url=urlReg
+    return urlReg && url.match(urlReg) && __caches[url] && !0 || !1
+  }
+  Args.cacheData=_=>__caches[url]
+  Args.cacheClear=(urlReg=/^$/)=>{
+    for(let k in __caches) if(k.match(urlReg)) delete __caches[k]
+  }
+
   return Args
 }
 
@@ -167,5 +177,6 @@ module.exports=async ({
     response: hooked_response,
   }
   updateResultResponseHeaders(result, headers)
+  if(url.match(__caches_url) && !__caches[url]) __caches[url]=result
   return result
 }
