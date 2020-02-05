@@ -26,7 +26,15 @@ exports.url2response=({
    getResponse,
    getStatusCode,
    setStatusCode,
+
+   cacheUrlBy,
+   cacheData,
+   cacheClear,
+
 })=>{
+
+  if(cacheUrlBy(/xx.js$/)) return cacheData().response
+
   await waitForResponse()
   console.log({url, getResponse()})
   if(!url.match(/^https\:\/\/www.baidu.com\/$/)) return

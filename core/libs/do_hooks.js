@@ -148,7 +148,7 @@ const makeArgs=({
     return urlReg && url.match(urlReg) && __caches[url] && !0 || !1
   }
   Args.cacheData=_=>__caches[url]
-  Args.cacheClear=(urlReg=/^$/)=>{
+  Args.cacheClear=(urlReg=/^/)=>{
     for(let k in __caches) if(k.match(urlReg)) delete __caches[k]
   }
 
