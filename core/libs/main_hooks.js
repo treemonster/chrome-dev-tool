@@ -37,6 +37,7 @@ exports.watchClient=async (onClient, headless, hooks_js)=>{
   })
 
   const options={
+    host: '127.0.0.1',
     port: browser.wsEndpoint().replace(/^.*\/\/.*?\:(\d+).*/,'$1'),
   }
 
