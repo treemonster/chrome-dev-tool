@@ -152,3 +152,8 @@ https://example.com
 ## 20200204更新
 
 0. 增加 cacheUrlBy，cacheData，cacheClear 方法，用于缓存请求结果数据，当缓存存在时，无需访问目标服务器即可返回之前的响应结果
+
+## 20200221更新
+
+0. url2response如果return true，则该请求直接到达目标服务器，不会被拦截处理。return undefined和return true目前意义是一致的，但表现形式有区别，undefined会进入本调试器的处理逻辑，但有些情况下会有bug，已知的是特定情况下cookie无法获取到，但尚未被解决。因此使用者可以用return true来替代return undefined，后期可能会解决这个问题。。
+

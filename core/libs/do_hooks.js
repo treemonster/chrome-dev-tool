@@ -6,6 +6,7 @@ const {
   readFileSync, writeFileSync,
   updateResultResponseHeaders,
   queryAll,
+  CONTINUE_REQUEST,
 }=require('./common')
 
 /**
@@ -169,6 +170,7 @@ module.exports=async ({
     pageId,
   })
   const hooked_response=await url2response(Args)
+  if(hooked_response === true) return CONTINUE_REQUEST // continue default request
   const len=Buffer.from(hooked_response||'').length
   len>0 && Args.addResponseHeader('Content-Length', len)
   const result={

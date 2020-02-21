@@ -1,7 +1,7 @@
 process.on('uncaughtException', e=>console.log(e))
 
 const {hookRequest, watchClient}=require('./libs/main_hooks')
-const {sleep}=require('./libs/common')
+const {sleep, CONTINUE_REQUEST}=require('./libs/common')
 
 const newBrowser=(headless, hooks_js_inject)=>watchClient(async (client, page)=>{
   const {Fetch}=client
@@ -19,6 +19,7 @@ const newBrowser=(headless, hooks_js_inject)=>watchClient(async (client, page)=>
     if(!url.match(/^https*\:\/\//)) return Fetch._continueRequest({requestId})
 
     let result=await hookRequest(request, page._target._targetId)
+    if(result === CONTINUE_REQUEST) return Fetch._continueRequest({requestId})
     const {status, response, responseHeadersArray}=result
 
     return Fetch._fulfillRequest({

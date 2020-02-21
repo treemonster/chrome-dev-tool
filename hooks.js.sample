@@ -37,7 +37,7 @@ exports.url2response=({
 
   await waitForResponse()
   console.log({url, getResponse()})
-  if(!url.match(/^https\:\/\/www.baidu.com\/$/)) return
+  if(!url.match(/^https\:\/\/www.baidu.com\/$/)) return true
   return `<h1>blocked by chrome-dev-tool</h1>`
 }
 

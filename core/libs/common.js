@@ -11,6 +11,8 @@ const {
   NETWORK_TIMEOUT_ERROR,
 }=require('cwg-fetch')
 
+exports.CONTINUE_REQUEST=new Error('continueWithoutHooks')
+
 exports.writeFileSync=function(fn, str) {
   path.normalize(fn+'/../').split(path.sep).reduce((a, b)=>{
     a=a+path.sep+b
