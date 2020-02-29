@@ -92,7 +92,7 @@ const makeArgs=({
   }
   Args.waitForResponse=async _=>{
     let res=null
-    let cache_fn=await url2cachefile(Args), cache_fn_headers=cache_fn+'.headers', ch, ch_headers
+    let cache_fn=Args._cache_fn, cache_fn_headers=cache_fn+'.headers', ch, ch_headers
     if(cache_fn) try{
       ch=readFileSync(cache_fn)
       ch_headers=JSON.parse(readFileSync(cache_fn_headers).toString('utf8'))
@@ -111,6 +111,7 @@ const makeArgs=({
         writeFileSync(cache_fn, res.response)
       }
     }catch(e) {
+      console.log(e)
       if(e===ERROR_TIMEOUT) res=ERROR_TIMEOUT_FETCH
       else res=ERROR_FAILED_FETCH
     }
@@ -169,7 +170,15 @@ module.exports=async ({
     url2cachefile, network_timeout,
     pageId,
   })
-  const hooked_response=await url2response(Args)
+  Args._cache_fn=await url2cachefile({url})
+  let hooked_response=null
+  if(Args._cache_fn) {
+    await Args.waitForResponse()
+    hooked_response=Args.getResponse()
+  }else{
+    hooked_response=await url2response(Args)
+  }
+
   if(hooked_response === true) return CONTINUE_REQUEST // continue default request
   const len=Buffer.from(hooked_response||'').length
   len>0 && Args.addResponseHeader('Content-Length', len)
