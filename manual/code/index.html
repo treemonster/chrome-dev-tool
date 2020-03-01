@@ -1,0 +1,297 @@
+<?js
+const fs=require('fs')
+const marked=require(__dirname+'/marked.min')
+function md5(str) {
+  return require('crypto').createHash('md5').update(str).digest('hex')
+}
+const fread=fn=>new Promise(r=>fs.readFile(fn, 'utf8', (e, b)=>r(e? '': b)))
+const fwrite=(fn, data)=>new Promise(r=>fs.writeFile(fn, data, _=>r()))
+const queryfn2fn=fn=>md5(decodeURIComponent(fn)).substr(0, 16)
+const fetchfn=_=>__dirname+'/'+queryfn2fn(query.fetch)+'.md'
+
+if(query.act==='read') {
+  echo(marked.parse(await fread(fetchfn())))
+  return
+}
+if(query.act==='write') {
+  await fwrite(fetchfn(), decodeURIComponent(postbody))
+  echo(marked.parse(await fread(fetchfn())))
+  return
+}
+
+const datas={}
+const titles=await fread(__dirname+'/'+queryfn2fn('titles')+'.md')
+datas.titles=titles
+datas.subs={}
+await Promise.all((titles.match(/.+/g)||[]).map(a=>a.replace(/^#+\s+|^\s*|\s*$/g, '')).filter(a=>a).map(async fn=>{
+  datas.subs[fn]=await fread(__dirname+'/'+queryfn2fn(fn)+'.md')
+}).concat([0]))
+
+?><meta charset='utf8' />
+<style type="text/css">
+html,body{
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+.title{
+    font-weight: bold;
+    padding: 10px 20px;
+    font-size: 30px;
+    color: #ffffff;
+    background: #4f4694;
+    position: fixed;
+    z-index: 10;
+    width: 100%;
+}
+.titles{
+    width: 260px;
+    overflow: auto;
+    word-break: keep-all;
+    white-space: nowrap;
+    position: fixed;
+    left: 0;
+    top: 60px;
+    bottom: 0;
+}
+.titles h1{
+  font-size: 18px;
+}
+.titles h2{
+  font-size: 16px;
+  font-weight: normal;
+  text-indent: 20px;
+}
+.titles h3{
+  font-size: 12px;
+  font-weight: normal;
+  color: #666;
+  text-indent: 40px;
+}
+.titles-list *{
+  opacity: .7;
+  cursor: pointer;
+  margin: 0 0 0 10px;
+  padding: 10px 5px;
+}
+.titles h1:hover, .titles h2:hover, .titles h3:hover{
+  opacity: 1;
+  background: #eee;
+}
+
+.edit{
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(2, 2, 3, 0.64);
+    z-index: 11;
+    top: 120%;
+    transition: .5s;
+}
+.edit.show{
+  top: 0;
+  background: rgba(2, 2, 3, 0.04);
+}
+.editpad{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 90%;
+    height: 88%;
+    transform: translate3d(-50%, -50%,0);
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 15px 30px #fff;
+    padding: 10px 20px;
+    border: 1px solid #eec;
+    overflow: hidden;
+}
+.tit{
+    font-size: 30px;
+    color: #666;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+.panel{
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 80px;
+    top: 80px;
+}
+.btns{
+    position: absolute;
+    bottom: 15px;
+    right: 20px;
+    left: 20px;
+    height: 50px;
+}
+.btns .save, .btns .cancel{
+    position: absolute;
+    background: #d46d11;
+    color: #fff;
+    font-size: 25px;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    text-align: center;
+    line-height: 50px;
+    cursor: pointer;
+    opacity: .8;
+    transition: .3s;
+}
+.btns .save{
+    background: #118ad4;
+    left: 50%;
+}
+.btns .save:hover, .btns .cancel:hover{
+  opacity: 1;
+}
+.pad-text{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    border-color: #ccc;
+    border-radius: 3px;
+    resize: none;
+}
+.pad-div{
+    position: absolute;
+    left: 51%;
+    right: 0;
+    height: 100%;
+    overflow: auto;
+    top: 0!important;
+    width: 50%!important;
+}
+.edit-title-btn{
+    background: #2c4cc7;
+    color: #fff;
+    font-size: 12px;
+    position: absolute;
+    right: 10px;
+    line-height: 1;
+    border-radius: 5px;
+    padding: 5px 10px;
+    top: 10px;
+    z-index: 11;
+    cursor: pointer;
+}
+.edit-content-btn{
+    background: #2c4cc7;
+    color: #fff;
+    font-size: 12px;
+    position: absolute;
+    right: 10px;
+    line-height: 1;
+    border-radius: 5px;
+    padding: 5px 10px;
+    top: 10px;
+    z-index: 11;
+    cursor: pointer;
+}
+.content{
+    overflow: auto;
+    word-break: keep-all;
+    white-space: nowrap;
+    position: fixed;
+    left: 265px;
+    right: 0;
+    top: 60px;
+    bottom: 0;
+    background: #fcfcfc;
+    padding: 10px;
+}
+.the-title{
+	  font-size: 26px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+</style>
+<script type="text/javascript" src="/marked.min.js"></script>
+<script type="text/javascript" src="/jquery.min.js"></script>
+<script type="text/javascript">
+let datas=<?js echo(JSON.stringify(datas)) ?>;
+let editfn=<?js echo(JSON.stringify(decodeURIComponent(query.view)||'')) ?>||null;
+
+function save(fn, content) {
+  return new Promise(cb=>{
+    const xhr=new XMLHttpRequest
+    xhr.open('POST', '?act=write&fetch='+encodeURIComponent(fn), !0)
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form- urlencoded')
+    xhr.send(encodeURIComponent(content))
+    xhr.onreadystatechange=_=>{
+      if(xhr.readyState!==4) return;
+      cb(xhr.responseText)
+    }
+  })
+}
+function showpanel(title, md, cls, fn) {
+  $('.edit').addClass('show')
+  $('.pad-div').addClass(cls)
+  $('.tit').html(title)
+  $('.pad-text').val(md).change()
+  editfn=fn
+}
+function hidepanel() {
+  $('.edit').removeClass('show')
+  $('.pad-div')[0].className='pad-div'
+}
+$(document).on('click', '.titles *', function() {
+  if($(this).hasClass('edit-title-btn')) {
+    showpanel('目录', datas.titles, 'titles', 'titles')
+    return;
+  }
+  location='?view='+encodeURIComponent($(this).html())
+  return false
+})
+$(document).on('click', '.edit-content-btn', function() {
+  showpanel(editfn, datas.subs[editfn], '', editfn)
+})
+$(document).on('click', '.cancel', _=>hidepanel())
+$(document).on('click', '.save', async _=>{
+  const data=await save(editfn, $('.pad-text').val())
+  if(editfn==='titles') {
+    datas.titles=$('.pad-text').val()
+    $('.titles-list').html(data)
+  }else{
+    datas.subs[editfn]=$('.pad-text').val()
+    $('.content-panel').html(data)
+  }
+  hidepanel()
+})
+
+; ['change', 'keyup'].map(c=>$(document).on(c, '.pad-text', function() {
+  $('.pad-div').html(marked.parse($(this).val()))
+}))
+</script>
+<div class="title">chrome-dev-tools使用手册</div>
+<div class="titles">
+  <div class="edit-title-btn">编辑</div>
+  <div class="titles-list">
+    <?js echo(marked(datas.titles)) ?>
+  </div>
+</div>
+<div class="content">
+  <div class="edit-content-btn">编辑</div>
+  <div class="the-title"><?js echo(decodeURIComponent(query.view||'')) ?></div>
+  <div class="content-panel"><?js echo(datas.subs[decodeURIComponent(query.view)]) ?></div>
+</div>
+<div class="edit">
+  <div class="editpad">
+    <div class="tit"></div>
+    <div class="panel">
+      <textarea class="pad-text"></textarea>
+      <div class="pad-div"></div>
+    </div>
+    <div class="btns">
+      <div class="save">保存</div>
+      <div class="cancel">取消</div>
+    </div>
+  </div>
+</div>
