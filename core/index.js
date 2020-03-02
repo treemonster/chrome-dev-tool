@@ -3,7 +3,7 @@ process.on('uncaughtException', e=>console.log(e))
 const {hookRequest, watchClient}=require('./libs/main_hooks')
 const {sleep, CONTINUE_REQUEST}=require('./libs/common')
 
-const newBrowser=(headless, hooks_js_inject)=>watchClient(async (client, page)=>{
+const newBrowser=(headless, hooks_js_inject, defaultUrl)=>watchClient(async (client, page)=>{
   const {Fetch}=client
   const patterns=[/^https*\:\/\//ig]
   await Promise.all([Fetch.enable({patterns})])
@@ -30,7 +30,7 @@ const newBrowser=(headless, hooks_js_inject)=>watchClient(async (client, page)=>
     })
 
   })
-}, headless, hooks_js_inject)
+}, headless, hooks_js_inject, defaultUrl)
 
 // https://chromedevtools.github.io/devtools-protocol/tot/Fetch
 // https://github.com/cyrus-and/chrome-remote-interface
@@ -38,7 +38,7 @@ const newBrowser=(headless, hooks_js_inject)=>watchClient(async (client, page)=>
 
 
 // 启动调试模式的chrome，用于开发
-exports.openDebugger=_=>newBrowser()
+exports.openDebugger=defaultUrl=>newBrowser(!1,!1, defaultUrl)
 
 // 封装代码控制的隐藏chrome，用于执行自动化任务
 exports.openAutotask=headless=>{

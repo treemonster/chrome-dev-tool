@@ -17,7 +17,7 @@ exports.hookRequest=async (request, pageId)=>{
   return await do_hooks(fetchObj, pageId)
 }
 
-exports.watchClient=async (onClient, headless, hooks_js)=>{
+exports.watchClient=async (onClient, headless, hooks_js, defaultUrl)=>{
   const targetsHooked={}
   const args=[
     '--disable-pnacl-crash-throttling',
@@ -83,6 +83,11 @@ exports.watchClient=async (onClient, headless, hooks_js)=>{
   browser.on('disconnected', _=>{
     process.exit()
   })
+
+  if(defaultUrl) {
+    const page=(await browser.pages())[0]||(await browser.newPage())
+    await page.goto(await defaultUrl)
+  }
 
   return browser
 }
