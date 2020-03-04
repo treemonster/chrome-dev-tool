@@ -8,6 +8,8 @@ const fread=fn=>new Promise(r=>fs.readFile(fn, 'utf8', (e, b)=>r(e? '': b)))
 const fwrite=(fn, data)=>new Promise(r=>fs.writeFile(fn, data, _=>r()))
 const queryfn2fn=fn=>md5(decodeURIComponent(fn)).substr(0, 16)
 const fetchfn=_=>__dirname+'/'+queryfn2fn(query.fetch)+'.md'
+const NO_TITLE='暂无标题'
+const NO_CONTENT='暂无说明'
 
 if(query.act==='read') {
   echo(marked.parse(await fread(fetchfn())))
@@ -19,13 +21,17 @@ if(query.act==='write') {
   return
 }
 
-const datas={}
 const titles=await fread(__dirname+'/'+queryfn2fn('titles')+'.md')
-datas.titles=titles
-datas.subs={}
+const bigtitle=await fread(__dirname+'/'+queryfn2fn('bigtitle')+'.md') || NO_TITLE
+const datas={
+  titles,
+  bigtitle,
+  subs: {},
+}
 await Promise.all((titles.match(/.+/g)||[]).map(a=>a.replace(/^#+\s+|^\s*|\s*$/g, '')).filter(a=>a).map(async fn=>{
-  datas.subs[fn]=(await fread(__dirname+'/'+queryfn2fn(fn)+'.md')) || '暂无说明'
+  datas.subs[fn]=(await fread(__dirname+'/'+queryfn2fn(fn)+'.md'))
   if(!query.view && datas.subs[fn]) query.view=encodeURIComponent(fn)
+  datas.subs[fn]=datas.subs[fn] || NO_CONTENT
 }).concat([0]))
 
 ?><meta charset='utf8' />
@@ -205,10 +211,6 @@ textarea {
   max-width: 100%;
 }
 
-@import url(http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,300italic,700);
-
-@import url(http://fonts.googleapis.com/css?family=Arimo:700,700italic);
-
 html {
   font-size: 18px;
   max-width: 100%;
@@ -260,17 +262,26 @@ html,body{
 h2,h3{
   text-align: left;
 }
+.bigtitle{
+    color: #ffffff;
+    background: #4f4694;
+    text-indent: 15px;
+}
+.bigtitle h1,.bigtitle h2,.bigtitle h3,.bigtitle h4,.bigtitle h5,.bigtitle h6{
+  margin: 20px 0;
+  border: none;
+}
 .title{
     left: 0;
     top: 0;
     font-weight: bold;
-    padding: 10px 20px;
-    font-size: 30px;
-    color: #ffffff;
-    background: #4f4694;
     position: fixed;
     z-index: 10;
     width: 100%;
+    cursor: pointer;
+}
+.title:hover{
+  opacity: .9;
 }
 .titles{
     width: 260px;
@@ -398,31 +409,27 @@ h2,h3{
     top: 0!important;
     width: 50%!important;
 }
-.edit-title-btn{
+.edit-btn{
     background: #2c4cc7;
     color: #fff;
     font-size: 12px;
     position: absolute;
-    right: 10px;
     line-height: 1;
     border-radius: 5px;
     padding: 5px 10px;
-    top: 10px;
     z-index: 11;
     cursor: pointer;
 }
-.edit-content-btn{
-    background: #2c4cc7;
-    color: #fff;
-    font-size: 12px;
-    position: absolute;
+.edit-btn:hover{
+  opacity: .9;
+}
+.edit-title-btn{
     right: 10px;
-    line-height: 1;
-    border-radius: 5px;
-    padding: 5px 10px;
     top: 10px;
-    z-index: 11;
-    cursor: pointer;
+}
+.edit-content-btn{
+    right: 10px;
+    top: 10px;
 }
 .content{
     overflow: auto;
@@ -445,8 +452,11 @@ h2,h3{
 <script type="text/javascript" src="/marked.min.js"></script>
 <script type="text/javascript" src="/jquery.min.js"></script>
 <script type="text/javascript">
-let datas=<?js echo(JSON.stringify(datas)) ?>;
-let editfn=<?js echo(JSON.stringify(decodeURIComponent(query.view)||'')) ?>||null;
+let {datas, editfn, NO_CONTENT}=<?js echo(JSON.stringify({
+  datas: datas,
+  editfn: decodeURIComponent(query.view)||null,
+  NO_CONTENT: NO_CONTENT,
+})) ?>
 
 function save(fn, content) {
   return new Promise(cb=>{
@@ -460,6 +470,10 @@ function save(fn, content) {
     }
   })
 }
+function updatebigtitle(){
+  const h=$('.bigtitle').height()
+  $('.titles,.content').css({top: h})
+}
 function showpanel(title, md, cls, fn) {
   $('.edit').addClass('show')
   $('.pad-div').addClass(cls)
@@ -472,11 +486,14 @@ function hidepanel() {
   $('.pad-div')[0].className='pad-div'
 }
 $(document).on('click', [1,2,3,4,5,6].map(a=>'.titles h'+a).join(','), function() {
-  if($(this).hasClass('edit-title-btn')) {
-    showpanel('目录', datas.titles, 'titles', 'titles')
-    return;
-  }
   location='?view='+encodeURIComponent($(this).html())
+  return false
+})
+$(document).on('click', '.title', function() {
+  showpanel('大标题', datas.bigtitle, 'bigtitle', 'bigtitle')
+})
+$(document).on('click', '.edit-title-btn', function() {
+  showpanel('目录', datas.titles, 'titles', 'titles')
   return false
 })
 $(document).on('click', '.edit-content-btn', function() {
@@ -485,12 +502,16 @@ $(document).on('click', '.edit-content-btn', function() {
 $(document).on('click', '.cancel', _=>hidepanel())
 $(document).on('click', '.save', async _=>{
   const data=await save(editfn, $('.pad-text').val())
-  if(editfn==='titles') {
+  if(editfn==='bigtitle') {
+    datas.bigtitle=$('.pad-text').val()
+    $('.title').html(data)
+    updatebigtitle()
+  }else if(editfn==='titles') {
     datas.titles=$('.pad-text').val()
     $('.titles-list').html(data)
   }else{
     datas.subs[editfn]=$('.pad-text').val()
-    $('.content-panel').html(data)
+    $('.content-panel').html(data||NO_CONTENT)
     hl_code($('.content-panel code'))
   }
   hidepanel()
@@ -507,19 +528,22 @@ function hl_code(codes) {
     })
   })
 }
-
+$(_=>{
+  updatebigtitle()
+})
+$(window).on('resize', _=>updatebigtitle())
 hljs.initHighlightingOnLoad()
 </script>
-<div class="title">chrome-dev-tools使用手册</div>
+<div class="title bigtitle"><?js echo(marked(datas.bigtitle)) ?></div>
 <div class="titles">
-  <div class="edit-title-btn">编辑</div>
+  <div class="edit-btn edit-title-btn">编辑</div>
   <div class="titles-list">
     <?js echo(marked(datas.titles)) ?>
   </div>
 </div>
 <?js if(query.view) { ?>
 <div class="content">
-  <div class="edit-content-btn">编辑</div>
+  <div class="edit-btn edit-content-btn">编辑</div>
   <div class="the-title"><?js echo(decodeURIComponent(query.view||'')) ?></div>
   <div class="content-panel"><?js echo(marked(datas.subs[decodeURIComponent(query.view)])) ?></div>
 </div>
