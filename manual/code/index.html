@@ -471,7 +471,7 @@ function hidepanel() {
   $('.edit').removeClass('show')
   $('.pad-div')[0].className='pad-div'
 }
-$(document).on('click', '.titles *', function() {
+$(document).on('click', [1,2,3,4,5,6].map(a=>'.titles h'+a).join(','), function() {
   if($(this).hasClass('edit-title-btn')) {
     showpanel('目录', datas.titles, 'titles', 'titles')
     return;
