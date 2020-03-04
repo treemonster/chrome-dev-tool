@@ -1,6 +1,11 @@
 <?js
 const fs=require('fs')
 const marked=require(__dirname+'/marked.min')
+const call_svid=(_=>{
+  try{
+    return require(__dirname+'/svid.html')
+  }catch(e) {}
+})()
 function md5(str) {
   return require('crypto').createHash('md5').update(str).digest('hex')
 }
@@ -18,6 +23,11 @@ if(query.act==='read') {
 if(query.act==='write') {
   await fwrite(fetchfn(), decodeURIComponent(postbody))
   echo(marked.parse(await fread(fetchfn())))
+  return
+}
+if(query.act==='call_svid') {
+  const {svid}=query
+  echo(await call_svid? call_svid(svid): __dirname+'/svid.html not exists')
   return
 }
 
@@ -448,6 +458,20 @@ h2,h3{
     margin-bottom: 10px;
     padding-bottom: 10px;
 }
+.call-btn{
+    color: #fff;
+    background: #d51616;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 14px;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: .6s;
+    white-space: nowrap;
+}
+.call-btn:hover{
+    background: #fd1f1f;
+}
 </style>
 <script type="text/javascript" src="/marked.min.js"></script>
 <script type="text/javascript" src="/jquery.min.js"></script>
@@ -457,18 +481,28 @@ let {datas, editfn, NO_CONTENT}=<?js echo(JSON.stringify({
   editfn: decodeURIComponent(query.view)||null,
   NO_CONTENT: NO_CONTENT,
 })) ?>
-
-function save(fn, content) {
+function updatebtns() {
+  $('em').each(function(){
+    const em=$(this), text=em.html()
+    const r=/^call\:([a-z\d]+):(.+)$/
+    if(!text.match(r)) return
+    em.replaceWith(text.replace(r, `<span data-svid="$1" class="call-btn">$2</span>`))
+  })
+}
+function xhr(method, url, postbody) {
   return new Promise(cb=>{
     const xhr=new XMLHttpRequest
-    xhr.open('POST', '?act=write&fetch='+encodeURIComponent(fn), !0)
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form- urlencoded')
-    xhr.send(encodeURIComponent(content))
+    xhr.open(method, url, !0)
+    method==='POST' && xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+    xhr.send(postbody)
     xhr.onreadystatechange=_=>{
       if(xhr.readyState!==4) return;
       cb(xhr.responseText)
     }
   })
+}
+function save(fn, content) {
+  return xhr('POST', '?act=write&fetch='+encodeURIComponent(fn), encodeURIComponent(content))
 }
 function updatebigtitle(){
   const h=$('.bigtitle').height()
@@ -488,6 +522,10 @@ function hidepanel() {
 $(document).on('click', [1,2,3,4,5,6].map(a=>'.titles h'+a).join(','), function() {
   location='?view='+encodeURIComponent($(this).html())
   return false
+})
+$(document).on('click', '[data-svid]', async function() {
+  const svid=$(this).attr('data-svid')
+  alert(await xhr('GET', '?act=call_svid&svid='+svid))
 })
 $(document).on('click', '.title', function() {
   showpanel('大标题', datas.bigtitle, 'bigtitle', 'bigtitle')
@@ -514,11 +552,13 @@ $(document).on('click', '.save', async _=>{
     $('.content-panel').html(data||NO_CONTENT)
     hl_code($('.content-panel code'))
   }
+  updatebtns()
   hidepanel()
 })
 
 ; ['change', 'keyup'].map(c=>$(document).on(c, '.pad-text', function() {
   $('.pad-div').html(marked.parse($(this).val()))
+  updatebtns()
 }))
 
 function hl_code(codes) {
@@ -530,6 +570,7 @@ function hl_code(codes) {
 }
 $(_=>{
   updatebigtitle()
+  updatebtns()
 })
 $(window).on('resize', _=>updatebigtitle())
 hljs.initHighlightingOnLoad()
