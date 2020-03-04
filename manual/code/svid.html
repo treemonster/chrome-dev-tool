@@ -1,2 +1,33 @@
 <?js
-echo("xasxsax")
+const apis={}
+const fs=require('fs')
+
+const _createhookjs=`exports.url2response=async ({
+  url,
+  waitForResponse,
+  getResponse,
+})=>{
+  if(!url.match(/\\:\\/\\/nodejs\\.cn\\/$/)) return true
+  await waitForResponse()
+  return Buffer.concat([
+    getResponse(),
+    Buffer.from('<script>alert("666")</scr'+'ipt>'),
+  ])
+}`
+apis.createhookjs=async _=>{
+  const hookjs=PROJ_SRC+'/hooks.js'
+  try{
+    fs.statSync(hookjs)
+    return {msg: hookjs+'已存在，不会写入默认数据', ok: !1}
+  }catch(e) {}
+  try{
+    fs.writeFileSync(hookjs, _createhookjs)
+    return {msg: '已成功写入'+hookjs, ok: !0}
+  }catch(e) {
+    return {msg: '无法写入'+hookjs, ok: !1}
+  }
+}
+
+module.exports=async svid=> {
+  return JSON.stringify(apis[svid]? await apis[svid](): {msg: svid+' 不存在', ok: !1})
+}

@@ -1,9 +1,9 @@
 <?js
 const fs=require('fs')
 const marked=require(__dirname+'/marked.min')
-const call_svid=(_=>{
+const call_svid=await (async _=>{
   try{
-    return require(__dirname+'/svid.html')
+    return await include_file(SVID_HTML)
   }catch(e) {}
 })()
 function md5(str) {
@@ -27,7 +27,7 @@ if(query.act==='write') {
 }
 if(query.act==='call_svid') {
   const {svid}=query
-  echo(await call_svid? call_svid(svid): __dirname+'/svid.html not exists')
+  echo(await call_svid? call_svid(svid): SVID_HTML+'不存在或未定义module.exports')
   return
 }
 
@@ -45,6 +45,7 @@ await Promise.all((titles.match(/.+/g)||[]).map(a=>a.replace(/^#+\s+|^\s*|\s*$/g
 }).concat([0]))
 
 ?><meta charset='utf8' />
+<base target='_blank' />
 <link rel="stylesheet" type="text/css" href="/vs2015.css">
 <script src="/highlight.pack.js"></script>
 <style type="text/css">
@@ -525,7 +526,12 @@ $(document).on('click', [1,2,3,4,5,6].map(a=>'.titles h'+a).join(','), function(
 })
 $(document).on('click', '[data-svid]', async function() {
   const svid=$(this).attr('data-svid')
-  alert(await xhr('GET', '?act=call_svid&svid='+svid))
+  try{
+    const {ok, msg}=JSON.parse(await xhr('GET', '?act=call_svid&svid='+svid))
+    alert(msg)
+  }catch(e) {
+    alert('网络错误')
+  }
 })
 $(document).on('click', '.title', function() {
   showpanel('大标题', datas.bigtitle, 'bigtitle', 'bigtitle')
