@@ -24,7 +24,7 @@ const titles=await fread(__dirname+'/'+queryfn2fn('titles')+'.md')
 datas.titles=titles
 datas.subs={}
 await Promise.all((titles.match(/.+/g)||[]).map(a=>a.replace(/^#+\s+|^\s*|\s*$/g, '')).filter(a=>a).map(async fn=>{
-  datas.subs[fn]=await fread(__dirname+'/'+queryfn2fn(fn)+'.md')
+  datas.subs[fn]=(await fread(__dirname+'/'+queryfn2fn(fn)+'.md')) || '暂无说明'
   if(!query.view && datas.subs[fn]) query.view=encodeURIComponent(fn)
 }).concat([0]))
 
@@ -253,6 +253,7 @@ html,body{
   width: 100%;
   height: 100%;
   margin: 0;
+  overflow: hidden;
 }
 .title{
     left: 0;
