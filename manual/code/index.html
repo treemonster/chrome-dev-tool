@@ -29,6 +29,8 @@ await Promise.all((titles.match(/.+/g)||[]).map(a=>a.replace(/^#+\s+|^\s*|\s*$/g
 }).concat([0]))
 
 ?><meta charset='utf8' />
+<link rel="stylesheet" type="text/css" href="/vs2015.css">
+<script src="/highlight.pack.js"></script>
 <style type="text/css">
 @media print {
   *,
@@ -254,6 +256,9 @@ html,body{
   height: 100%;
   margin: 0;
   overflow: hidden;
+}
+h2,h3{
+  text-align: left;
 }
 .title{
     left: 0;
@@ -486,6 +491,7 @@ $(document).on('click', '.save', async _=>{
   }else{
     datas.subs[editfn]=$('.pad-text').val()
     $('.content-panel').html(data)
+    hl_code($('.content-panel code'))
   }
   hidepanel()
 })
@@ -493,6 +499,16 @@ $(document).on('click', '.save', async _=>{
 ; ['change', 'keyup'].map(c=>$(document).on(c, '.pad-text', function() {
   $('.pad-div').html(marked.parse($(this).val()))
 }))
+
+function hl_code(codes) {
+  codes.map(function() {
+    (this.className+'').replace(/^language-([a-z\d]+)/, (_, lan)=>{
+      $(this).html(hljs.highlight(lan, this.innerHTML).value).addClass('hljs')
+    })
+  })
+}
+
+hljs.initHighlightingOnLoad()
 </script>
 <div class="title">chrome-dev-tools使用手册</div>
 <div class="titles">
