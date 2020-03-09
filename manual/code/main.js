@@ -1,0 +1,100 @@
+let {datas, editfn, NO_CONTENT}=window.DATAS
+function updatebtns() {
+  $('em').each(function(){
+    const em=$(this), text=em.html()
+    const r=/^call\:([a-z\d]+):(.+)$/
+    if(!text.match(r)) return
+    em.replaceWith(text.replace(r, `<span data-svid="$1" class="call-btn">$2</span>`))
+  })
+}
+function xhr(method, url, postbody) {
+  return new Promise(cb=>{
+    const xhr=new XMLHttpRequest
+    xhr.open(method, url, !0)
+    method==='POST' && xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+    xhr.send(postbody)
+    xhr.onreadystatechange=_=>{
+      if(xhr.readyState!==4) return;
+      cb(xhr.responseText)
+    }
+  })
+}
+function save(fn, content) {
+  return xhr('POST', '?act=write&fetch='+encodeURIComponent(fn), encodeURIComponent(content))
+}
+function updatebigtitle(){
+  const h=$('.bigtitle').height()
+  $('.titles,.content').css({top: h})
+}
+function showpanel(title, md, cls, fn) {
+  $('.edit').addClass('show')
+  $('.pad-div').addClass(cls)
+  $('.tit').html(title)
+  $('.pad-text').val(md).change()
+  editfn=fn
+}
+function hidepanel() {
+  $('.edit').removeClass('show')
+  $('.pad-div')[0].className='pad-div'
+}
+$(document).on('click', [1,2,3,4,5,6].map(a=>'.titles h'+a).join(','), function() {
+  location='?view='+encodeURIComponent($(this).html())
+  return false
+})
+$(document).on('click', '[data-svid]', async function() {
+  const svid=$(this).attr('data-svid')
+  try{
+    const res=JSON.parse(await xhr('GET', '?act=call_svid&svid='+svid))
+    // {ok, msg}
+    alert(res.msg)
+  }catch(e) {
+    alert('网络错误')
+  }
+})
+$(document).on('click', '.title', function() {
+  showpanel('大标题', datas.bigtitle, 'bigtitle', 'bigtitle')
+})
+$(document).on('click', '.edit-title-btn', function() {
+  showpanel('目录', datas.titles, 'titles', 'titles')
+  return false
+})
+$(document).on('click', '.edit-content-btn', function() {
+  showpanel(editfn, datas.subs[editfn], '', editfn)
+})
+$(document).on('click', '.cancel', _=>hidepanel())
+$(document).on('click', '.save', async _=>{
+  const data=await save(editfn, $('.pad-text').val())
+  if(editfn==='bigtitle') {
+    datas.bigtitle=$('.pad-text').val()
+    $('.title').html(data)
+    updatebigtitle()
+  }else if(editfn==='titles') {
+    datas.titles=$('.pad-text').val()
+    $('.titles-list').html(data)
+  }else{
+    datas.subs[editfn]=$('.pad-text').val()
+    $('.content-panel').html(data||NO_CONTENT)
+    hl_code($('.content-panel code'))
+  }
+  updatebtns()
+  hidepanel()
+})
+
+; ['change', 'keyup'].map(c=>$(document).on(c, '.pad-text', function() {
+  $('.pad-div').html(marked.parse($(this).val()))
+  updatebtns()
+}))
+
+function hl_code(codes) {
+  codes.map(function() {
+    (this.className+'').replace(/^language-([a-z\d]+)/, (_, lan)=>{
+      $(this).html(hljs.highlight(lan, this.innerHTML).value).addClass('hljs')
+    })
+  })
+}
+$(_=>{
+  updatebigtitle()
+  updatebtns()
+})
+$(window).on('resize', _=>updatebigtitle())
+hljs.initHighlightingOnLoad()
