@@ -1,4 +1,5 @@
 let {datas, editfn, NO_CONTENT}=window.DATAS
+let _editfn=editfn
 function updatebtns() {
   $('em').each(function(){
     const em=$(this), text=em.html()
@@ -55,11 +56,11 @@ $(document).on('click', '.title', function() {
   showpanel('大标题', datas.bigtitle, 'bigtitle', 'bigtitle')
 })
 $(document).on('click', '.edit-title-btn', function() {
-  showpanel('目录', datas.titles, 'titles', 'titles')
+  showpanel('目录', datas.titles, 'titles titles-list', 'titles')
   return false
 })
 $(document).on('click', '.edit-content-btn', function() {
-  showpanel(editfn, datas.subs[editfn], '', editfn)
+  showpanel(_editfn, datas.subs[_editfn], '', _editfn)
 })
 $(document).on('click', '.cancel', _=>hidepanel())
 $(document).on('click', '.save', async _=>{
@@ -82,13 +83,14 @@ $(document).on('click', '.save', async _=>{
 
 ; ['change', 'keyup'].map(c=>$(document).on(c, '.pad-text', function() {
   $('.pad-div').html(marked.parse($(this).val()))
+  hl_code($('.pad-div code'))
   updatebtns()
 }))
 
 function hl_code(codes) {
   codes.map(function() {
     (this.className+'').replace(/^language-([a-z\d]+)/, (_, lan)=>{
-      $(this).html(hljs.highlight(lan, this.innerHTML).value).addClass('hljs')
+      $(this).html(hljs.highlight(lan, this.innerText).value).addClass('hljs')
     })
   })
 }
