@@ -51,11 +51,9 @@ exports.url2cachefile=({url})=>{
 exports.runScriptOnUrlChange=async ({
   url,
   page,
-  $, mouse, keyboard,
-  sleep, evaluate,
+  sleep,
+  evaluate,
 })=>{
-  const {focus, click, hover}=mouse
-  const {ctrlBackspace, type, enter}=keyboard
   console.log(url)
 }
 

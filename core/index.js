@@ -43,12 +43,14 @@ exports.openDebugger=defaultUrl=>newBrowser(!1,!1, defaultUrl)
 // 封装代码控制的隐藏chrome，用于执行自动化任务
 exports.openAutotask=headless=>{
   const url2response_list={}
-  const HOOKS_JS_INJECT={proxy: true, url2response: Args=>{
+  const HOOKS_JS_INJECT={proxy: true, url2response: async Args=>{
     for(let pageId in url2response_list) {
       if(Args.pageId !== pageId) continue
       const p=url2response_list[pageId]
-      typeof p==='function' && p(Args)
+      if(typeof p==='function') return await p(Args)
+      break
     }
+    return true
   }}
   const browser=newBrowser(headless, HOOKS_JS_INJECT)
   const run=async asyncFunc=>{
@@ -57,6 +59,8 @@ exports.openAutotask=headless=>{
     const pageId=page._target._targetId
     url2response_list[pageId]=null
     return new Promise(r=>asyncFunc({
+      page,
+      sleep,
       hook: fn=>url2response_list[pageId]=fn,
       goto: async url=>{
         await page.goto(url)

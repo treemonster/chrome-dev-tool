@@ -155,6 +155,13 @@ exports.sandboxTool=async page=>{
   ret.url=await getPageUrl(page)
   ret.evaluate=page.evaluate.bind(page)
 
+  // 模拟事件文档参考
+  // https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-mouse
+
+  return ret
+
+  /*
+
   ret.$=async q=>{
     for(;;) {
       const f=await page.$(q)
@@ -194,6 +201,7 @@ exports.sandboxTool=async page=>{
   }
 
   return ret
+  */
 }
 
 
