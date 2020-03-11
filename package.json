@@ -6,6 +6,7 @@
     "cwg-pre-loader": "^2.0.5",
     "get-port": "^5.1.1",
     "iconv-lite": "^0.4.24",
+    "less": "^3.11.1",
     "puppeteer-core": "^1.18.1",
     "regenerator": "^0.14.2"
   }

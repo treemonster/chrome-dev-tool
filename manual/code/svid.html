@@ -11,7 +11,7 @@ const _createhookjs=`exports.url2response=async ({
   await waitForResponse()
   return Buffer.concat([
     getResponse(),
-    Buffer.from('<script>alert("666")</scr'+'ipt>'),
+    Buffer.from('<script>alert("666")</script>'),
   ])
 }`
 apis.createhookjs=async _=>{
