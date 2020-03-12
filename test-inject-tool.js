@@ -1,17 +1,17 @@
 const ptask=require('./core').openAutotask(false)
 
-const baidu_task=ptask.run(async ({hook, goto, evaluate, end})=>{
+const baidu_task=ptask.run(async ({hook, goto, page, end})=>{
   hook(({url})=>{
     console.log('#baidu', url)
   })
   await goto('https://baidu.com')
-  console.log(await evaluate(async _=>{
+  console.log(await page.evaluate(async _=>{
     return new Promise(r=>setTimeout(_=>r('baidu####'), 2e3))
   }))
   end()
 })
 
-const nodejs_task=ptask.run(async ({hook, goto, page, sleep, evaluate, end})=>{
+const nodejs_task=ptask.run(async ({hook, goto, page, sleep, end})=>{
   hook(async ({url, waitForResponse, getResponse})=>{
     if(!url.match(/search.*?=fs/)) return true
     await waitForResponse()

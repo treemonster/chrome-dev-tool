@@ -153,7 +153,6 @@ exports.sandboxTool=async page=>{
   const {sleep, getPageUrl}=exports
   ret.sleep=sleep
   ret.url=await getPageUrl(page)
-  ret.evaluate=page.evaluate.bind(page)
 
   // 模拟事件文档参考
   // https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-mouse
