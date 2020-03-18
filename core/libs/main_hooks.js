@@ -50,13 +50,13 @@ exports.watchClient=async (onClient, headless, hooks_js, defaultUrl)=>{
   const bindTarget=async target=>{
     const page=await target.page()
     if(!page) return
+    console.log("##NEW", await page.url())
     const {targetId}=target._targetInfo
     if(targetsHooked[targetId]) return 1
     targetsHooked[targetId]=1
     const client=await CDP(Object.assign({target: targetId}, options))
     await onClient(client, page)
-    let load_flag=''
-    page.on('domcontentloaded', async _=>{
+    let load_flag='', afterload=async _=>{
       load_flag=Math.random()
       let _load_flag=load_flag
       for(let _url=''; load_flag===_load_flag; ) {
@@ -70,7 +70,16 @@ exports.watchClient=async (onClient, headless, hooks_js, defaultUrl)=>{
         if(!runScriptOnUrlChange) return;
         runScriptOnUrlChange(await sandboxTool(page))
       }
-    })
+    }
+    for(;;) {
+      try{
+        if(await page.evaluate(_=>document.readyState==='complete')) break
+      }catch(e){}
+      await sleep(50)
+    }
+    await afterload()
+    // page.on('domcontentloaded', afterload)
+
     for(;!page.__DEV_URL__;) await sleep(1e2)
     const {useragent}=get_apis()
     await page.setUserAgent(useragent || defaultUserAgent)
