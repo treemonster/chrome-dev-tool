@@ -80,7 +80,9 @@ const makeArgs=({
     }
   }
   Args.addResponseHeader=addResponseHeader
-  Args.requestPipe=async ({requestOrigin, responseOrigin, timeout})=>{
+  Args.requestPipe=async (any)=>{
+    if(typeof any==='string') any={requestOrigin: any, responseOrigin: any}
+    const {requestOrigin, responseOrigin, timeout}=any
     const {status, responseHeaders, response}=await requestPipe({
       url, method, postData, headers,
       timeout: timeout || network_timeout,

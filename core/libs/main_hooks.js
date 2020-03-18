@@ -50,7 +50,6 @@ exports.watchClient=async (onClient, headless, hooks_js, defaultUrl)=>{
   const bindTarget=async target=>{
     const page=await target.page()
     if(!page) return
-    console.log("##NEW", await page.url())
     const {targetId}=target._targetInfo
     if(targetsHooked[targetId]) return 1
     targetsHooked[targetId]=1
