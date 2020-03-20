@@ -31,3 +31,4 @@ apis.createhookjs=async _=>{
 module.exports=async svid=> {
   return JSON.stringify(apis[svid]? await apis[svid](): {msg: svid+' 不存在', ok: !1})
 }
+

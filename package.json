@@ -3,7 +3,7 @@
     "chrome-finder": "^1.0.5",
     "chrome-remote-interface": "^0.27.1",
     "cwg-fetch": "^1.1.2",
-    "cwg-pre-loader": "^2.0.5",
+    "cwg-pre-loader": "^2.0.6",
     "get-port": "^5.1.1",
     "iconv-lite": "^0.4.24",
     "less": "^3.11.1",
