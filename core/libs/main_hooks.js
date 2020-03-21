@@ -1,7 +1,11 @@
 const CDP = require('chrome-remote-interface')
 const puppeteer = require('puppeteer-core')
-const findChrome = require('chrome-finder')
 const path = require('path')
+
+const findChrome=_=>{
+  // return require('chrome-finder')
+  return require("chrome-launcher").Launcher.getInstallations()[0]
+}
 
 const get_apis=require('./get_apis')
 const do_hooks=require('./do_hooks')
