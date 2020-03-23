@@ -56,12 +56,15 @@ const datas={
   bigtitle,
   subs: {},
 }
-await Promise.all((titles.match(/.+/g)||[]).map(a=>a.replace(/^#+\s+|^\s*|\s*$/g, '')).filter(a=>a).map(async fn=>{
+const list=await Promise.all((titles.match(/.+/g)||[]).map(a=>a.replace(/^#+\s+|^\s*|\s*$/g, '')).filter(a=>a))
+
+await Promise.all(list.map(async fn=>{
   datas.subs[fn]=(await fread(__dirname+'/'+queryfn2fn(fn)+'.md'))
-  if(!query.view && datas.subs[fn]) query.view=encodeURIComponent(fn)
-  datas.subs[fn]=datas.subs[fn] || NO_CONTENT
+  datas.subs[fn]=datas.subs[fn] || ''
 }).concat([0]))
 
+if(!query.view) query.view=encodeURIComponent(list.find(a=>datas.subs[a]) || list[0])
+for(let fn in datas.subs) datas.subs[fn]=datas.subs[fn] || NO_CONTENT
 ?><meta charset='utf8' />
 <base target='_blank' />
 <link rel="stylesheet" type="text/css" href="/vs2015.css">

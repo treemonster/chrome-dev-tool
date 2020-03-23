@@ -1,3 +1,4 @@
+// https://github.com/pandao/editor.md
 let {datas, editfn, NO_CONTENT}=window.DATAS
 let _editfn=editfn
 function updatebtns() {
