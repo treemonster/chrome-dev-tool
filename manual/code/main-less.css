@@ -425,3 +425,18 @@ h2,h3{
     background: #fd1f1f;
   }
 }
+
+.focusit{
+  animation: focusit .3s linear;
+}
+
+@keyframes focusit{
+  0%{
+    background: rgba(255, 0, 0, .4);
+  }
+  100%{
+    background: rgba(255, 0, 0, 0);
+  }
+}
+
+

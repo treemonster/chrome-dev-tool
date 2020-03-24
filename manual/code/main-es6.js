@@ -1,4 +1,3 @@
-// https://github.com/pandao/editor.md
 let {datas, editfn, NO_CONTENT}=window.DATAS
 let _editfn=editfn
 function updatebtns() {
@@ -38,6 +37,16 @@ function showpanel(title, md, cls, fn) {
 function hidepanel() {
   $('.edit').removeClass('show')
   $('.pad-div')[0].className='pad-div'
+}
+const pos={}
+function calc_where(key, str) {
+  const old=pos[key]||''
+  pos[key]=str
+  if(str===old) return;
+  const len=Math.min(old.length, str.length)
+  let cur=0
+  for(; cur<len && old.charAt(cur)===str.charAt(cur); cur++);
+  return str.substr(0, cur)+'<i data-cur></i>'+str.substr(cur, str.length)
 }
 $(document).on('click', [1,2,3,4,5,6].map(a=>'.titles h'+a).join(','), function() {
   location='?view='+encodeURIComponent($(this).html())
@@ -83,7 +92,18 @@ $(document).on('click', '.save', async _=>{
 })
 
 ; ['change', 'keyup'].map(c=>$(document).on(c, '.pad-text', function() {
-  $('.pad-div').html(marked.parse($(this).val()))
+  const str=marked.parse($(this).val())
+  const fixstr=calc_where('pad-text', str)
+  if(!fixstr) return;
+  $('.pad-div').html(fixstr)
+  try{
+    $('.pad-div')[0].scrollTop+=$('[data-cur]').offset().top-$('.pad-div').offset().top-$('.pad-div').height()/2
+    const p=$('[data-cur]').parent()
+    if(!p.hasClass('focusit')) {
+      p.addClass('focusit')
+      setTimeout(_=>p.removeClass('focusit'), 1e3)
+    }
+  }catch(e) {}
   hl_code($('.pad-div code'))
   updatebtns()
 }))
