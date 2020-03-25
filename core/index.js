@@ -41,7 +41,7 @@ const newBrowser=(headless, hooks_js_inject, defaultUrl)=>watchClient(async (cli
 exports.openDebugger=defaultUrl=>newBrowser(!1,!1, defaultUrl)
 
 // 封装代码控制的隐藏chrome，用于执行自动化任务
-exports.openAutotask=headless=>{
+exports.openAutotask=(headless, browserConfigs)=>{
   const url2response_list={}
   const HOOKS_JS_INJECT={proxy: true, url2response: async Args=>{
     for(let pageId in url2response_list) {
@@ -52,6 +52,9 @@ exports.openAutotask=headless=>{
     }
     return true
   }}
+  if(browserConfigs) ['proxy', 'useragent'].map(k=>{
+    if(typeof browserConfigs[k]!=='undefined') HOOKS_JS_INJECT[k]=browserConfigs[k]
+  })
   const browser=newBrowser(headless, HOOKS_JS_INJECT)
   const run=async asyncFunc=>{
     const _browser=await browser
