@@ -9,7 +9,7 @@ const findChrome=_=>{
 
 const get_apis=require('./get_apis')
 const do_hooks=require('./do_hooks')
-const {sleep, getPageUrl, sandboxTool, deleteHeader, headers2kvheaders}=require('./common')
+const {sleep, getPageUrl, sandboxTool, deleteHeader, headers2kvheaders, getArgv}=require('./common')
 
 exports.hookRequest=async (request, pageId)=>{
   const {url, method, postData, headers}=request
@@ -29,7 +29,7 @@ exports.watchClient=async (onClient, headless, hooks_js, defaultUrl)=>{
     '--enable-features=NetworkService,NetworkServiceInProcess',
     '--auto-open-devtools-for-tabs',
     '--no-first-run',
-    '--user-data-dir='+path.normalize(__dirname+'/../../browser-data'),
+    '--user-data-dir='+path.normalize(getArgv('browser-data-dir') || __dirname+'/../../browser-data'),
   ]
   if(headless) args.unshift('--headless')
   if(hooks_js) global.HOOKS_JS_INJECT=hooks_js

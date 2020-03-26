@@ -13,6 +13,14 @@ const {
 
 exports.CONTINUE_REQUEST=new Error('continueWithoutHooks')
 
+const args={}
+process.argv.slice(2).map(arg=>{
+  arg.replace(/^--(.+?)=(.+)$/,(_, k, v)=>{
+    args[k.toUpperCase()]=v
+  })
+})
+exports.getArgv=key=>args[key.toUpperCase()]
+
 exports.writeFileSync=function(fn, str) {
   path.normalize(fn+'/../').split(path.sep).reduce((a, b)=>{
     a=a+path.sep+b

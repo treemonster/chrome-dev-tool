@@ -7,5 +7,25 @@
     "get-port": "^5.1.1",
     "iconv-lite": "^0.4.24",
     "puppeteer-core": "^1.18.1"
-  }
+  },
+  "name": "chrome-dev-tool",
+  "description": "chrome-dev-tool",
+  "homepage": "https://github.com/treemonster/chrome-dev-tool",
+  "main": "bin/index.js",
+  "version": "1.0.1",
+  "devDependencies": {},
+  "scripts": {
+    "test": "node test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/treemonster/chrome-dev-tool.git"
+  },
+  "bin": {
+    "chrome-dev-tool": "./bin/cli.js"
+  },
+  "author": "1696292264@qq.com",
+  "license": "ISC"
 }
+
+

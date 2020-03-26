@@ -1,6 +1,6 @@
-const {md5, cut, requireFile, DEFAULT_NETWORK_TIMEOUT}=require(__dirname+'/common')
+const {md5, cut, requireFile, DEFAULT_NETWORK_TIMEOUT, getArgv}=require(__dirname+'/common')
 const _default_url2cachefile=({url})=>{
-  return __dirname+'/../../data/'+url.replace(/^https*\:\/\/(.+?)\/.*?([^\/]*?)(?:\?.*|$)/g, (_, a, b)=>{
+  return getArgv('dir')+'/data/'+url.replace(/^https*\:\/\/(.+?)\/.*?([^\/]*?)(?:\?.*|$)/g, (_, a, b)=>{
     return a.replace(/\:/,'_')+'/'+(md5(url).substr(0, 8)+'/'+cut(b, 15, 15)).replace(/[^a-z\d\.]/ig, '_')
   })
 }
