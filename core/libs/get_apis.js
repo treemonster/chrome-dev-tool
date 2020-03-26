@@ -24,7 +24,7 @@ const useragent=null
 const aa=(a, b)=>a===undefined?b:a
 const ss=(a, b)=>async c=>(await aa(a,b)(c))||b(c)
 module.exports=_=>{
-  let hooks=global.HOOKS_JS_INJECT||requireFile(__dirname+'/../../hooks.js')||{}
+  let hooks=global.HOOKS_JS_INJECT||requireFile(getArgv('dir')+'/hooks.js')||{}
   if(hooks.HOOKS_FILE) hooks=requireFile(hooks.HOOKS_FILE)
   return {
     url2cachefile: async c=>{
