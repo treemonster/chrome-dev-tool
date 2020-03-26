@@ -57,7 +57,7 @@ exports.requireFile=fn=>{
     }
     return require(abs_fn)
   }catch(e) {
-    console.log('Failed to load '+abs_fn+': ', e)
+    console.log('Failed to load '+abs_fn+': ')
   }
 }
 
