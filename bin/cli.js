@@ -27,8 +27,8 @@ console.log(JSON.stringify({
   injectjs: ijs? path.resolve(ijs): null,
 }, null, 2))
 if(ijs) {
-  global.chromeDevToolCore=core
-  require(ijs)
+  global.ChromeDevToolCore=core
+  require(path.resolve(ijs))
 }else{
   openChrome()
 }

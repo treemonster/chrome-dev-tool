@@ -15,8 +15,8 @@ exports.CONTINUE_REQUEST=new Error('continueWithoutHooks')
 
 const args={}
 process.argv.slice(2).map(arg=>{
-  arg.replace(/^--(.+?)(=(.+))*$/,(_, k, v)=>{
-    args[k.toUpperCase()]=v||''
+  arg.replace(/^--(.+?)(?:=(.+))*$/,(_, k, v)=>{
+    args[k.toUpperCase()]=v||true
   })
 })
 exports.setDefaultArgv=def=>{
