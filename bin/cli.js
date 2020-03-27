@@ -1,11 +1,34 @@
 #!/usr/bin/env node
+const fs=require('fs')
 const path=require('path')
-const {openChrome}=require(__dirname+'/index.js')
-const {getArgv}=require(__dirname+'/../core/libs/common')
-const dir=path.resolve(getArgv('dir') || '.')
+const {openChrome, core}=require(__dirname+'/index.js')
+const {getArgv, setDefaultArgv}=require(__dirname+'/../core/libs/common')
+/*
+ --dir
+ --browser-data-dir
+ --inject-js
+ --version
+ */
+if(getArgv('version')) {
+  console.log(JSON.parse(fs.readFileSync(__dirname+'/../package.json', 'utf8')).version)
+  process.exit()
+}
+
+setDefaultArgv({
+  dir: '.',
+  'browser-data-dir': './browser-data',
+})
+const dir=getArgv('dir')
+const ijs=getArgv('inject-js')
 console.log(JSON.stringify({
-  projectdir: dir,
-  hookJs: path.normalize(dir+'/hooks.js'),
-  url2cachedir: path.normalize(dir+'/data'),
+  projectdir: path.resolve(dir),
+  hookjs: path.resolve(dir+'/hooks.js'),
+  url2cachedir: path.resolve(dir+'/data'),
+  injectjs: ijs? path.resolve(ijs): null,
 }, null, 2))
-openChrome()
+if(ijs) {
+  global.chromeDevToolCore=core
+  require(ijs)
+}else{
+  openChrome()
+}

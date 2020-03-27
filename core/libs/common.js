@@ -15,10 +15,13 @@ exports.CONTINUE_REQUEST=new Error('continueWithoutHooks')
 
 const args={}
 process.argv.slice(2).map(arg=>{
-  arg.replace(/^--(.+?)=(.+)$/,(_, k, v)=>{
-    args[k.toUpperCase()]=v
+  arg.replace(/^--(.+?)(=(.+))*$/,(_, k, v)=>{
+    args[k.toUpperCase()]=v||''
   })
 })
+exports.setDefaultArgv=def=>{
+  for(let k in def) if(argv[k.toUpperCase()]===undefined) argv[k.toUpperCase()]=def[k]
+}
 exports.getArgv=key=>args[key.toUpperCase()]
 
 exports.writeFileSync=function(fn, str) {
@@ -57,7 +60,8 @@ exports.requireFile=fn=>{
     }
     return require(abs_fn)
   }catch(e) {
-    console.log('Failed to load '+abs_fn+': ')
+    if(require_file_mtime[abs_fn]!==-1) console.log('Failed to load '+abs_fn+': ')
+    require_file_mtime[abs_fn]=-1
   }
 }
 
