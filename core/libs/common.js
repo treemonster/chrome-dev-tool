@@ -20,7 +20,7 @@ process.argv.slice(2).map(arg=>{
   })
 })
 exports.setDefaultArgv=def=>{
-  for(let k in def) if(argv[k.toUpperCase()]===undefined) argv[k.toUpperCase()]=def[k]
+  for(let k in def) if(args[k.toUpperCase()]===undefined) args[k.toUpperCase()]=def[k]
 }
 exports.getArgv=key=>args[key.toUpperCase()]
 
