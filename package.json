@@ -12,7 +12,7 @@
   "description": "chrome-dev-tool",
   "homepage": "https://github.com/treemonster/chrome-dev-tool",
   "main": "bin/index.js",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "devDependencies": {},
   "scripts": {
     "test": "node test"

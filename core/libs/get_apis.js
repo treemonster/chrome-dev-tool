@@ -1,8 +1,9 @@
 const {md5, cut, requireFile, DEFAULT_NETWORK_TIMEOUT, getArgv}=require(__dirname+'/common')
+const path=require('path')
 const _default_url2cachefile=({url})=>{
-  return getArgv('dir')+'/data/'+url.replace(/^https*\:\/\/(.+?)\/.*?([^\/]*?)(?:\?.*|$)/g, (_, a, b)=>{
+  return path.resolve(getArgv('dir')+'/data/'+url.replace(/^https*\:\/\/(.+?)\/.*?([^\/]*?)(?:\?.*|$)/g, (_, a, b)=>{
     return a.replace(/\:/,'_')+'/'+(md5(url).substr(0, 8)+'/'+cut(b, 15, 15)).replace(/[^a-z\d\.]/ig, '_')
-  })
+  }))
 }
 
 // 默认不写入缓存

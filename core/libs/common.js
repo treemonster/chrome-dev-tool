@@ -47,6 +47,7 @@ exports.NOTHING=Buffer.alloc(0)
 exports.sleep=ms=>new Promise(r=>setTimeout(r, ms))
 
 const require_file_mtime={}
+let _last_require_errmsg=''
 exports.requireFile=fn=>{
   const abs_fn=path.resolve(fn)
   try{
@@ -60,8 +61,9 @@ exports.requireFile=fn=>{
     }
     return require(abs_fn)
   }catch(e) {
-    if(require_file_mtime[abs_fn]!==-1) console.log('Failed to load '+abs_fn+': ')
-    require_file_mtime[abs_fn]=-1
+    let msg='Failed to load '+abs_fn+': '+e.message
+    if(_last_require_errmsg!==msg) console.log(msg)
+    _last_require_errmsg=msg
   }
 }
 
