@@ -11,7 +11,7 @@ exports.proxy=false /* {
 exports.NETWORK_TIMEOUT=10e3
 
 // 根据当前请求的url和响应，选择性的修改响应结果
-exports.url2response=({
+exports.url2response=async ({
    url, method, postData, requestHeaders,
 
    go302,

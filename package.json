@@ -12,10 +12,10 @@
   "description": "chrome-dev-tool",
   "homepage": "https://github.com/treemonster/chrome-dev-tool",
   "main": "bin/index.js",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "devDependencies": {},
   "scripts": {
-    "test": "node test"
+    "start": "node bin/cli"
   },
   "repository": {
     "type": "git",
