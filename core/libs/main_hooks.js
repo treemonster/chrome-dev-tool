@@ -59,11 +59,23 @@ exports.watchClient=async (onClient, headless, hooks_js, defaultUrl)=>{
     targetsHooked[targetId]=1
     const client=await CDP(Object.assign({target: targetId}, options))
     await onClient(client, page)
-    let load_flag='', afterload=async _=>{
-      load_flag=Math.random()
-      let _load_flag=load_flag
-      for(let _url=''; load_flag===_load_flag; ) {
-        try{await page.evaluate(_=>1)}catch(e){break}
+    for(;;) {
+      try{
+        if(await page.evaluate(_=>document.readyState==='complete')) break
+      }catch(e){}
+      await sleep(50)
+    }
+    ; (async _=>{
+      for(let _url='', _lst='';; ) {
+        try{
+          const lst=await page.evaluate(_=>{
+            return window.__CHROME_DEV_TOOL_LOCK_KEY=window.__CHROME_DEV_TOOL_LOCK_KEY || Math.random()
+          })
+          if(lst!==_lst) _url=''
+          _lst=lst
+        }catch(e){
+          if(page.isClosed()) break
+        }
         await sleep(50)
         const url=await getPageUrl(page)
         if(!url || url===_url) continue
@@ -73,16 +85,7 @@ exports.watchClient=async (onClient, headless, hooks_js, defaultUrl)=>{
         if(!runScriptOnUrlChange) return;
         runScriptOnUrlChange(await sandboxTool(page))
       }
-    }
-    for(;;) {
-      try{
-        if(await page.evaluate(_=>document.readyState==='complete')) break
-      }catch(e){}
-      await sleep(50)
-    }
-    await afterload()
-    // page.on('domcontentloaded', afterload)
-
+    })()
     for(;!page.__DEV_URL__;) await sleep(1e2)
     const {useragent}=get_apis()
     await page.setUserAgent(useragent || defaultUserAgent)
