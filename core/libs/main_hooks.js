@@ -31,6 +31,7 @@ exports.watchClient=async (onClient, headless, hooks_js, defaultUrl)=>{
     '--no-first-run',
     '--user-data-dir='+path.normalize(getArgv('browser-data-dir') || __dirname+'/../../browser-data'),
   ]
+  if(getArgv('no-sandbox')) args.push('--no-sandbox')
   if(headless) args.unshift('--headless')
   if(hooks_js) global.HOOKS_JS_INJECT=hooks_js
   const browser=await puppeteer.launch({
